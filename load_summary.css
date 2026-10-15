@@ -1,0 +1,57 @@
+/* Summary of Load — uses the core design tokens. */
+.program-card { padding: 0; overflow: hidden; }
+
+.program-head {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1rem 1.5rem; background: var(--green-50); border-bottom: 1px solid var(--border);
+}
+.program-stats { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-size: 0.9rem; color: var(--muted); }
+.program-stats strong { color: var(--green-800); font-size: 1.05rem; }
+
+.year-block { padding: 1rem 1.5rem 0.5rem; }
+.year-title { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--green-800); margin-bottom: 0.5rem; }
+
+.load-table { font-size: 0.9rem; }
+.load-table th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); white-space: nowrap; }
+.load-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.load-table td { padding-top: 0.55rem; padding-bottom: 0.55rem; }
+
+.section-row { cursor: pointer; }
+.section-row:hover td { background: var(--green-50); }
+.section-row:focus-visible { outline: 2px solid var(--green-600); outline-offset: -2px; }
+.section-row .chev { font-size: 0.7rem; color: var(--muted); transition: transform 0.15s; display: inline-block; }
+.section-row.is-open .chev { transform: rotate(90deg); }
+
+.year-total td, .program-total td { font-weight: 700; background: var(--surface-soft); border-top: 2px solid var(--border); }
+.program-total td { background: var(--green-100); color: var(--green-900); }
+
+.detail-row > td { background: #fbfdfb; padding: 0 !important; }
+.detail-box { padding: 0.75rem 1rem 0.75rem 2.25rem; }
+.detail-table th { font-size: 0.7rem; }
+.detail-missing { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+
+.tl-tag { display: inline-block; min-width: 2.3rem; text-align: center; font-size: 0.65rem; font-weight: 700; border-radius: 0.3rem; padding: 0 0.3rem; }
+.tl-tag.is-lec { background: #dbeafe; color: #1e40af; }
+.tl-tag.is-lab { background: #fef3c7; color: #92400e; }
+
+.load-status { display: inline-block; padding: 0.15rem 0.6rem; font-size: 0.75rem; font-weight: 700; border-radius: 999px; white-space: nowrap; }
+.load-status.is-complete { background: #d1e7dd; color: #0f5132; }
+.load-status.is-partial { background: #fff3cd; color: #664d03; }
+.load-status.is-scheduled { background: #cfe2ff; color: #084298; }
+.load-status.is-none { background: #f8d7da; color: #842029; }
+
+.cov-cell { display: flex; align-items: center; gap: 0.5rem; min-width: 110px; }
+.cov-track { flex: 1; height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+.cov-fill { height: 100%; background: #f59e0b; border-radius: 999px; }
+.cov-fill.is-full { background: var(--green-600); }
+.cov-text { font-size: 0.78rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+@media print {
+  .no-print, .sidebar-nav, .sidebar-toggle-mobile, .sidebar-backdrop, .toast-container { display: none !important; }
+  .app-main { margin: 0 !important; padding: 0 !important; }
+  .glass-card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid-page; }
+  .program-card { margin-bottom: 1rem !important; }
+  .detail-row.d-none { display: table-row !important; }
+  .section-row { cursor: default; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

@@ -1,0 +1,5 @@
+/** Activity Log page — mostly reuses .glass-card/.pg-* from core/style.css + page-shell.css. **/
+
+.activity-log-shell .table td, .activity-log-shell .table th { vertical-align: middle; }
+.activity-log-shell .badge { font-weight: 600; font-size: .74rem; }
+#accessRestricted, #migrationNeeded { max-width: 520px; margin: 40px auto; }

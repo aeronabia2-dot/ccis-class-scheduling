@@ -1,0 +1,471 @@
+/* ==========================================================================
+   Faculty Weekly Schedule Matrix (Instructors page)
+   Faculty rows x 30-minute columns for one day. Logic: js/instructors/faculty-matrix.js
+   ========================================================================== */
+.faculty-matrix-modal {
+    --fm-name-w: 210px;
+    --fm-slot-w: 74px;
+    /* Same card tokens as the Weekly Schedule Matrix (scheduling.css), so both
+       matrices read as one system and follow any change to the --green-* scale. */
+    --fm-card-radius: 10px;
+    --fm-card-border: rgba(20, 108, 67, 0.38);
+    --fm-card-border-conflict: #e39089;
+    --fm-card-accent: linear-gradient(180deg, var(--green-500, #2fa968), var(--green-700, #146c43));
+    --fm-card-accent-conflict: linear-gradient(180deg, #eda69e, var(--danger, #b3261e));
+    --fm-card-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 1px 1px rgba(15, 74, 49, 0.07),
+        0 3px 7px rgba(15, 74, 49, 0.1), 0 8px 14px -8px rgba(15, 74, 49, 0.2);
+    --fm-card-shadow-hover:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 2px 3px rgba(15, 74, 49, 0.1),
+        0 8px 16px rgba(15, 74, 49, 0.16), 0 18px 28px -10px rgba(15, 74, 49, 0.28);
+    --fm-line: #e6efea;
+    --fm-line-soft: #f2f8f4;
+    font-family: var(--font-body, "Inter", "Segoe UI", Arial, sans-serif);
+}
+.faculty-matrix-modal .modal-content { background: #fff; }
+
+/* ---- toolbar: same soft green wash as the Weekly Schedule Matrix heading ---- */
+.faculty-matrix-modal .fm-toolbar {
+    padding: .85rem 1.25rem;
+    align-items: center;
+    border-bottom: 1px solid var(--border, #dfe7e2);
+    background: linear-gradient(120deg, var(--green-50, #f1faf5) 0%, #fff 100%);
+}
+.faculty-matrix-modal .fm-toolbar .btn-close { margin: 0 0 0 .25rem; }
+.faculty-matrix-modal .modal-title { font-family: var(--font-display, "Sora", "Inter", sans-serif); letter-spacing: -0.01em; color: var(--dark, #101b15); }
+.fm-print-heading { display: none; }
+
+.fm-toolbar-title { min-width: 0; }
+.fm-day-group { display: inline-flex; flex-wrap: wrap; gap: .25rem; padding: 3px; background: var(--surface-soft, #f4f8f5); border: 1px solid var(--border, #dfe7e2); border-radius: 999px; }
+.fm-day-group .btn { border-radius: 999px; font-weight: 700; }
+.fm-day-btn.is-today:not(.btn-primary-modern) { border-color: var(--green-600, #1c8c57); color: var(--green-700, #146c43); }
+
+.fm-state { font-size: .92rem; }
+
+/* ---- matrix-local filter bar: same green wash, pill shapes and avatar-style icon bubbles as the rest of the matrix ---- */
+.fm-filterbar {
+    padding: .75rem 1.25rem .8rem;
+    border-bottom: 1px solid var(--border, #dfe7e2);
+    background: linear-gradient(180deg, #fff 0%, var(--green-50, #f1faf5) 100%);
+}
+.fm-filterbar-main { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .6rem; }
+
+.fm-field {
+    --fm-field-h: 40px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    height: var(--fm-field-h);
+    margin: 0;
+    padding: 0 .35rem 0 .3rem;
+    flex: 0 1 178px;
+    min-width: 150px;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid var(--border, #dceee3);
+    border-radius: 999px;
+    box-shadow: 0 1px 2px rgba(15, 74, 49, .06);
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.fm-field:hover { border-color: var(--green-300, #8fd4ae); }
+.fm-field:focus-within { border-color: var(--green-600, #1c8c57); box-shadow: 0 0 0 3px rgba(28, 140, 87, .16); }
+.fm-field-search { flex: 1 1 240px; max-width: 340px; cursor: text; }
+.fm-field:has(#fmFilterSubject), .fm-field:has(#fmFilterSection), .fm-field:has(#fmFilterRoom) { flex-basis: 200px; min-width: 190px; }
+
+.fm-field-icon {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .72rem;
+    color: var(--green-800, #0f4a31);
+    background: linear-gradient(160deg, #fbfffd, var(--green-200, #bfe7d2));
+    border: 1px solid var(--fm-card-border);
+    transition: background .15s ease, color .15s ease;
+}
+
+.fm-input, .fm-select {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--dark, #101b15);
+    text-overflow: ellipsis;
+}
+.fm-input::placeholder { color: var(--muted, #6b786f); font-weight: 500; }
+.fm-input::-webkit-search-cancel-button { appearance: none; display: none; }
+.fm-select {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    padding-right: 1.5rem;
+    background: no-repeat right .45rem center / .7rem
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23146c43' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Open dropdown list: breathing room so the text never touches the popup's edge line. */
+.fm-select { padding-left: .1rem; }
+.fm-select option {
+    padding: .5rem .9rem;
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--dark, #101b15);
+    background: #fff;
+}
+.fm-select option:checked { font-weight: 700; }
+.fm-select option[value=""] { color: var(--muted, #6b786f); }
+
+/* A filter that is switched on: green rim, mint fill, solid icon bubble. */
+.fm-field.is-active { border-color: var(--green-600, #1c8c57); background: var(--green-50, #f3fbf7); }
+.fm-field.is-active .fm-field-icon {
+    color: #fff;
+    background: linear-gradient(160deg, var(--green-500, #2fa968), var(--green-700, #146c43));
+    border-color: var(--green-700, #146c43);
+}
+.fm-field.is-active .fm-input, .fm-field.is-active .fm-select { color: var(--green-900, #0a3524); font-weight: 700; }
+
+/* Show: segmented control, same pill tray as the day buttons. */
+.fm-seg {
+    display: inline-flex;
+    gap: .2rem;
+    padding: 3px;
+    margin-left: auto;
+    background: var(--surface-soft, #f4f8f5);
+    border: 1px solid var(--border, #dfe7e2);
+    border-radius: 999px;
+}
+.fm-seg button {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    height: 32px;
+    padding: 0 .85rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--green-800, #0f4a31);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.fm-seg button i { font-size: .7rem; opacity: .85; }
+.fm-seg button:hover:not(.is-active) { background: var(--green-100, #e1f5ea); }
+.fm-seg button:focus-visible { outline: 2px solid var(--green-600, #1c8c57); outline-offset: 1px; }
+.fm-seg button.is-active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--green-600, #1c8c57), var(--green-700, #146c43));
+    box-shadow: 0 2px 6px rgba(20, 108, 67, .3);
+}
+
+/* Active filters as removable chips (only shown when something is on). */
+.fm-chips { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .6rem; padding-top: .6rem; border-top: 1px dashed var(--fm-card-border); }
+.fm-chips-label { font-size: .74rem; font-weight: 700; color: var(--muted, #6b786f); margin-right: .1rem; }
+.fm-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .15rem;
+    max-width: 100%;
+    padding: .18rem .25rem .18rem .65rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--green-800, #0f4a31);
+    background: linear-gradient(160deg, #fbfffd, var(--green-100, #e1f5ea));
+    border: 1px solid var(--fm-card-border);
+    border-radius: 999px;
+}
+.fm-chip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fm-chip-text em { font-style: normal; font-weight: 600; color: var(--muted, #6b786f); margin-right: .25rem; }
+.fm-chip button {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .62rem;
+    color: var(--green-800, #0f4a31);
+    background: transparent;
+    cursor: pointer;
+}
+.fm-chip button:hover { background: var(--green-200, #bfe7d2); }
+.fm-chip button:focus-visible { outline: 2px solid var(--green-600, #1c8c57); }
+.fm-chips-clear {
+    margin-left: .25rem;
+    padding: .2rem .6rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #b3261e;
+    cursor: pointer;
+}
+.fm-chips-clear:hover { background: #fdecea; }
+
+.fm-state .btn-link { padding: 0 .25rem; vertical-align: baseline; }
+
+
+/* Own scroll container: the page body never scrolls sideways. */
+.fm-scroll {
+    overflow: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    background: #fff;
+}
+
+.fm-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    font-size: .74rem;
+}
+
+/* ---- header (sticky top) ---- */
+.fm-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: linear-gradient(180deg, var(--green-50, #f1faf5), var(--green-100, #dcefe3));
+    color: var(--green-900, #0a3524);
+    font-weight: 800;
+    text-align: center;
+    vertical-align: middle;
+    padding: .45rem .15rem;
+    border-right: 1px solid var(--fm-line);
+    border-bottom: 2px solid var(--green-700, #146c43);
+    box-shadow: 0 3px 6px rgba(10, 53, 36, 0.06);
+    width: var(--fm-slot-w);
+    min-width: var(--fm-slot-w);
+    line-height: 1.15;
+}
+.fm-time-col span { display: block; }
+.fm-time-col span:first-child { font-size: .76rem; }
+.fm-time-col span + span { color: var(--muted, #5c6b61); font-weight: 600; font-size: .68rem; }
+.fm-time-col.is-hour { border-left: 2px solid var(--green-200, #b8d8c7); }
+
+/* ---- sticky first column ---- */
+.fm-table thead th.fm-name-col,
+.fm-table th.fm-name-cell {
+    position: sticky;
+    left: 0;
+    width: var(--fm-name-w);
+    min-width: var(--fm-name-w);
+    max-width: var(--fm-name-w);
+    text-align: left;
+    background: #fff;
+    border-right: 2px solid var(--green-700, #146c43);
+    box-shadow: 4px 0 8px -4px rgba(10, 53, 36, 0.12);
+}
+.fm-table thead th.fm-name-col {
+    z-index: 4;
+    padding-left: 1rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: .68rem;
+    background: linear-gradient(180deg, var(--green-50, #f1faf5), var(--green-100, #dcefe3));
+}
+.fm-table th.fm-name-cell {
+    z-index: 2;
+    padding: .4rem .75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--fm-line);
+    color: var(--dark, #101b15);
+}
+.fm-name-wrap { display: flex; align-items: center; gap: .6rem; min-width: 0; }
+.fm-avatar {
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    color: var(--green-800, #0f5132);
+    background: linear-gradient(160deg, #fbfffd, var(--green-200, #b8d8c7));
+    border: 1px solid var(--fm-card-border);
+}
+.fm-name-body { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
+.fm-name-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .78rem; font-weight: 700; line-height: 1.2; }
+.fm-name-meta { display: block; font-size: .64rem; font-weight: 600; color: var(--muted, #5c6b61); line-height: 1.2; }
+.fm-name-cell.is-idle .fm-avatar { color: var(--muted, #5c6b61); background: var(--surface-soft, #f4f8f5); border-color: var(--border, #dfe7e2); }
+.fm-name-cell.is-idle .fm-name-text { color: #4a5a50; font-weight: 600; }
+.fm-name-cell.is-unassigned .fm-avatar { color: #8a5a00; background: #fff4e0; border-color: #f0c987; }
+.fm-name-cell.is-unassigned .fm-name-text { font-style: italic; }
+
+/* ---- warning strip (unassigned / undrawable classes) ---- */
+.fm-notice {
+    padding: .5rem 1rem;
+    font-size: .85rem;
+    color: #7a4b00;
+    background: #fff4e0;
+    border-bottom: 1px solid #f0c987;
+}
+.fm-name-flag { flex: 0 0 auto; color: #b3261e; }
+
+/* ---- body cells ---- */
+.fm-cell {
+    height: 64px;
+    padding: 3px;
+    border-right: 1px solid var(--fm-line-soft);
+    border-bottom: 1px solid var(--fm-line);
+    background: #fff;
+    vertical-align: middle;
+}
+.fm-row:nth-child(even) .fm-cell:not(.is-unavailable) { background: #fbfefc; }
+.fm-cell.is-hour { border-left: 1px solid var(--fm-line); }
+.fm-cell.is-unavailable {
+    background: repeating-linear-gradient(135deg, #f6f7f7, #f6f7f7 6px, #eceeee 6px, #eceeee 7px);
+}
+.fm-row:hover .fm-cell:not(.has-block):not(.is-unavailable) { background: var(--green-50, #f1faf5); }
+.fm-row:hover th.fm-name-cell { background: var(--green-50, #f1faf5); }
+/* Extra lanes of one instructor stay visually grouped with their name cell. */
+.fm-row:not(.is-first-lane) .fm-cell { border-top: 1px dashed #e9c3c0; }
+
+/* ---- class block: the Weekly Schedule Matrix card, laid out for a wide bar ---- */
+.fm-cell.has-block { padding: 3px; background: #fff; }
+.fm-row:nth-child(even) .fm-cell.has-block { background: #fbfefc; }
+.fm-block {
+    position: relative;
+    height: 100%;
+    min-height: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    padding: .25rem .5rem .25rem .7rem;
+    border-radius: var(--fm-card-radius);
+    background: linear-gradient(160deg, #fbfffd 0%, var(--green-100, #dcefe3) 45%, var(--green-200, #c4e4d1) 100%);
+    border: 1px solid var(--fm-card-border);
+    color: var(--green-900, #0a3524);
+    box-shadow: var(--fm-card-shadow);
+    overflow: hidden;
+    line-height: 1.15;
+    cursor: default;
+    transition: transform var(--dur-fast, 150ms) var(--ease-standard, ease), box-shadow var(--dur-fast, 150ms) var(--ease-standard, ease);
+    container-type: inline-size;
+    container-name: fm-card;
+}
+/* soft top sheen + coloured spine, like the Weekly Schedule Matrix card */
+.fm-block::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 48%);
+}
+.fm-block::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    pointer-events: none;
+    border-radius: var(--fm-card-radius) 0 0 var(--fm-card-radius);
+    background: var(--fm-card-accent);
+}
+.fm-block > * { position: relative; z-index: 1; }
+.fm-block:hover { transform: translateY(-1px); box-shadow: var(--fm-card-shadow-hover); }
+.fm-block span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fm-block-subject { font-weight: 900; font-size: .8rem; letter-spacing: .01em; }
+.fm-block-name { font-size: .62rem; font-style: italic; font-weight: 600; color: var(--green-800, #0f5132); opacity: .85; }
+.fm-block-room { font-weight: 800; }
+.fm-block-section { font-weight: 700; color: var(--green-800, #0f5132); }
+.fm-block-time { font-size: .64rem; font-weight: 800; }
+.fm-block-time i { margin-right: .3rem; font-size: .6rem; }
+
+.fm-block.is-conflict {
+    background: linear-gradient(160deg, #fff8f7 0%, #fcebe9 45%, #f8d3cf 100%);
+    border-color: var(--fm-card-border-conflict);
+    color: #6f1712;
+}
+.fm-block.is-conflict::after { background: var(--fm-card-accent-conflict); }
+.fm-block.is-conflict .fm-block-section,
+.fm-block.is-conflict .fm-block-name { color: #b3261e; }
+
+/* Narrow blocks (one or two slots) keep the essentials; the full detail stays in the tooltip. */
+@container fm-card (max-width: 150px) {
+    .fm-block-name, .fm-block-time { display: none; }
+}
+@container fm-card (max-width: 96px) {
+    .fm-block-section { display: none; }
+}
+
+.fm-legend { display: flex; flex-wrap: wrap; gap: .9rem; padding: .6rem 1.25rem; font-size: .74rem; color: var(--muted, #5c6b61); border-top: 1px solid var(--border, #dfe7e2); background: var(--green-50, #f1faf5); }
+.fm-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: .35rem; vertical-align: -1px; border: 1px solid var(--fm-card-border); background: linear-gradient(160deg, #fbfffd, var(--green-200, #c4e4d1)); }
+.fm-legend i.is-conflict { background: #fdecea; border-color: #e4a29d; }
+.fm-legend i.is-unavailable { background: repeating-linear-gradient(135deg, #f6f7f7, #f6f7f7 3px, #dcdfdf 3px, #dcdfdf 4px); border-color: #ced4d4; }
+
+@media (max-width: 767.98px) {
+    .faculty-matrix-modal { --fm-name-w: 150px; --fm-slot-w: 66px; }
+    .fm-avatar { display: none; }
+    .faculty-matrix-modal .fm-toolbar { padding: .7rem .85rem; }
+    .fm-filterbar { padding: .6rem .85rem; }
+    .fm-field, .fm-field-search { flex: 1 1 calc(50% - .3rem); min-width: 130px; max-width: none; }
+    .fm-field-search { flex-basis: 100%; }
+    .fm-seg { width: 100%; margin-left: 0; }
+    .fm-seg button { flex: 1 1 auto; justify-content: center; padding: 0 .5rem; }
+}
+
+/* ---- print: only this window, long bond paper (8.5 x 13 in) landscape (the @page rule is injected by JS).
+   The modal is a direct child of <body>, so every other body child is hidden. ---- */
+@media print {
+    body.fm-printing > *:not(#facultyMatrixModal) { display: none !important; }
+    body.fm-printing .fm-notice { display: none !important; }
+    body.fm-printing { overflow: visible !important; padding: 0 !important; }
+
+    body.fm-printing #facultyMatrixModal {
+        position: static !important; display: block !important; overflow: visible !important;
+        opacity: 1 !important; height: auto !important;
+    }
+    body.fm-printing #facultyMatrixModal .modal-dialog {
+        position: static; max-width: none; width: 100%; height: auto; margin: 0; transform: none !important;
+    }
+    body.fm-printing #facultyMatrixModal .modal-content { border: 0; height: auto; display: block; }
+    body.fm-printing #facultyMatrixModal .modal-body { display: block !important; overflow: visible; }
+    body.fm-printing .fm-toolbar,
+    body.fm-printing .fm-filterbar,
+    body.fm-printing .fm-legend,
+    body.fm-printing #facultyMatrixState { display: none !important; }
+
+    body.fm-printing .fm-print-heading { display: block; text-align: center; margin-bottom: 6px; line-height: 1.3; }
+    .fm-print-heading .fm-print-school { font-weight: 700; font-size: 11pt; }
+    .fm-print-heading .fm-print-title { font-weight: 800; font-size: 13pt; letter-spacing: .04em; }
+    .fm-print-heading .fm-print-line { font-size: 10pt; }
+
+    body.fm-printing .fm-scroll { overflow: visible !important; max-height: none !important; border: 0; }
+    body.fm-printing .fm-table { width: 100%; min-width: 0; font-size: 6pt; --fm-slot-w: auto; --fm-name-w: 120px; }
+    body.fm-printing .fm-table thead th { position: static; padding: 2px 0; }
+    body.fm-printing .fm-table th.fm-name-cell { position: static; font-size: 7pt; padding: 2px 4px; }
+    body.fm-printing .fm-name-text { white-space: normal; max-width: none; }
+    body.fm-printing .fm-avatar, body.fm-printing .fm-name-meta, body.fm-printing .fm-block-name, body.fm-printing .fm-block-time { display: none; }
+    body.fm-printing .fm-table thead th, body.fm-printing .fm-table th.fm-name-cell { box-shadow: none; }
+    body.fm-printing .fm-block { box-shadow: none; transition: none; }
+    body.fm-printing .fm-block::before { display: none; }
+    body.fm-printing .fm-cell { height: 32px; padding: 1px; }
+    body.fm-printing .fm-block { min-height: 28px; padding: 1px 2px 1px 4px; }
+    body.fm-printing .fm-block-subject { font-size: 6.5pt; }
+    body.fm-printing .fm-table tr { break-inside: avoid; }
+    body.fm-printing * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

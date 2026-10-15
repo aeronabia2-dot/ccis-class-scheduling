@@ -1,0 +1,186 @@
+.login-body {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+  padding: 24px;
+}
+
+/* Full-bleed CCIS banner, shown in full (never cropped), same treatment
+   as the dashboard hero: fit-to-screen on a matching cream backdrop with
+   a green scrim so the login card stays legible. */
+.login-bg-image {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-color: #fafbed;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+
+.login-bg-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 53, 36, 0.1) 0%,
+    rgba(10, 53, 36, 0.45) 55%,
+    rgba(10, 53, 36, 0.88) 100%
+  );
+}
+
+.login-shell {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 30px 70px rgba(10, 53, 36, 0.45);
+  padding: 40px 36px;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.login-brand .brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(160deg, var(--green-600), var(--green-800));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--elevation-2);
+}
+
+.login-brand-title {
+  font-family: "Sora", sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--green-800);
+  line-height: 1.2;
+}
+
+.login-brand-sub {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--green-600);
+  text-transform: uppercase;
+}
+
+.login-heading {
+  font-family: "Sora", sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--green-900);
+  margin-bottom: 4px;
+}
+
+.login-subheading {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.login-card .form-label {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--green-800);
+  margin-bottom: 6px;
+}
+
+.login-card .form-control {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  padding: 0.6rem 0.85rem;
+}
+
+.login-card .form-control:focus {
+  border-color: var(--green-500);
+  box-shadow: var(--focus-ring);
+}
+
+.login-card .input-group .btn-outline-secondary {
+  border: 1px solid var(--border);
+  border-left: none;
+  color: var(--muted);
+  background: #fff;
+}
+
+.login-card .input-group .btn-outline-secondary:hover {
+  background: var(--green-50);
+  color: var(--green-700);
+}
+
+.login-alert {
+  background: #fbeae9;
+  border: 1px solid #f1c4c0;
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  margin-bottom: 18px;
+}
+
+.login-submit {
+  background: linear-gradient(160deg, var(--green-600), var(--green-800));
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.7rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    var(--shadow-lg);
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
+}
+
+.login-submit:hover {
+  background: linear-gradient(160deg, var(--green-600), var(--green-800));
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 18px 36px rgba(10, 53, 36, 0.35);
+}
+
+.login-submit:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 28px 22px;
+  }
+}

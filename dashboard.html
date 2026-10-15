@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="js/core/auth-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | CCIS Scheduling System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/dashboard/dashboard.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#146C43">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="images/icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="CCIS Scheduling">
+    <link rel="stylesheet" href="css/core/notifications.css">
+</head>
+<body>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notificationToast" class="toast align-items-center border-0 ntf-success" role="status" aria-live="polite" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-circle-check me-2" id="toastIcon"></i>
+                    <span id="toastMessage">Ready.</span>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <button class="sidebar-toggle-mobile" id="sidebarToggle" type="button" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <aside class="sidebar-nav" id="sidebarNav">
+        <a class="sidebar-brand" href="dashboard.html">
+            <span class="brand-mark"><i class="fas fa-calendar-days"></i></span>
+            <span>CCIS Scheduling</span>
+        </a>
+
+        <nav class="sidebar-links">
+            <a class="sidebar-link active" href="dashboard.html"><i class="fas fa-house"></i><span>Dashboard</span></a>
+            <a class="sidebar-link" href="pages/scheduling.html"><i class="fas fa-calendar-check"></i><span>Scheduling</span></a>
+            <a class="sidebar-link" href="pages/classrooms.html"><i class="fas fa-building"></i><span>Rooms</span></a>
+            <a class="sidebar-link" href="pages/instructors.html"><i class="fas fa-user-tie"></i><span>Instructors</span></a>
+            <a class="sidebar-link" href="pages/subjects.html"><i class="fas fa-book"></i><span>Subjects</span></a>
+            <a class="sidebar-link" href="pages/curriculum.html"><i class="fas fa-list-check"></i><span>Curriculum</span></a>
+            <a class="sidebar-link" href="pages/class_sections.html"><i class="fas fa-users"></i><span>Sections</span></a>
+            <a class="sidebar-link" href="pages/schedule_archives.html"><i class="fas fa-box-archive"></i><span>Archives</span></a>
+            <a class="sidebar-link" href="pages/load_summary.html"><i class="fas fa-table-list"></i><span>Summary of Load</span></a>
+            <a class="sidebar-link" href="pages/user_management.html"><i class="fas fa-user-gear"></i><span>User Management</span></a>
+            <a class="sidebar-link" href="pages/activity_log.html"><i class="fas fa-clock-rotate-left"></i><span>Activity Log</span></a>
+        </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <span class="sidebar-user-avatar"><i class="fas fa-user"></i></span>
+                    <div class="sidebar-user-meta">
+                        <span class="sidebar-user-name" data-current-user-name>—</span>
+                        <span class="sidebar-user-role" data-current-user-role>—</span>
+                    </div>
+                </div>
+                <button type="button" class="sidebar-logout" data-logout>
+                    <i class="fas fa-right-from-bracket"></i><span>Log Out</span>
+                </button>
+            </div>
+        </aside>
+
+    <div class="app-main">
+
+    <main class="dash">
+
+        <!-- Top bar -->
+        <header class="dash-top">
+            <div>
+                <p class="dash-date" id="dashDate">&nbsp;</p>
+                <h1 class="dash-title"><span id="dashGreeting">Welcome</span>, <span data-current-user-name>—</span></h1>
+                <p class="dash-sub">
+                    <span class="term-chip" id="termChip"><i class="fas fa-calendar-days"></i><span>Loading term…</span></span>
+                    <span class="dash-updated" id="dashUpdated"></span>
+                </p>
+            </div>
+            <div class="dash-top-actions">
+                <button type="button" class="icon-btn" id="refreshBtn" aria-label="Refresh dashboard" title="Refresh"><i class="fas fa-rotate"></i></button>
+                <a href="pages/scheduling.html" class="btn-primary-dash"><i class="fas fa-calendar-check"></i>Open Scheduling</a>
+            </div>
+        </header>
+
+        <div class="dash-alert d-none" id="dashError" role="alert">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span>Couldn't load live numbers. Check your connection and press refresh.</span>
+        </div>
+
+        <!-- KPI cards -->
+        <section class="kpi-grid" aria-label="Key numbers">
+            <a class="kpi" href="pages/scheduling.html"><span class="kpi-icon"><i class="fas fa-calendar-check"></i></span><span class="kpi-body"><span class="kpi-label">Scheduled classes</span><span class="kpi-value" id="kpiSchedules">–</span></span></a>
+            <a class="kpi kpi-conflict" id="kpiConflictsCard" href="pages/scheduling.html"><span class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></span><span class="kpi-body"><span class="kpi-label">Conflicts</span><span class="kpi-value" id="kpiConflicts">–</span></span></a>
+            <a class="kpi" href="pages/instructors.html"><span class="kpi-icon"><i class="fas fa-user-tie"></i></span><span class="kpi-body"><span class="kpi-label">Instructors</span><span class="kpi-value" id="kpiInstructors">–</span></span></a>
+            <a class="kpi" href="pages/classrooms.html"><span class="kpi-icon"><i class="fas fa-building"></i></span><span class="kpi-body"><span class="kpi-label">Rooms</span><span class="kpi-value" id="kpiRooms">–</span></span></a>
+            <a class="kpi" href="pages/class_sections.html"><span class="kpi-icon"><i class="fas fa-users"></i></span><span class="kpi-body"><span class="kpi-label">Sections</span><span class="kpi-value" id="kpiSections">–</span></span></a>
+            <a class="kpi" href="pages/subjects.html"><span class="kpi-icon"><i class="fas fa-book"></i></span><span class="kpi-body"><span class="kpi-label">Subjects</span><span class="kpi-value" id="kpiSubjects">–</span></span></a>
+        </section>
+
+        <div class="dash-cols">
+
+            <!-- Today -->
+            <section class="panel panel-today" aria-labelledby="todayHead">
+                <div class="panel-head">
+                    <h2 id="todayHead"><i class="fas fa-sun"></i>Today&rsquo;s classes <span class="panel-count" id="todayCount"></span></h2>
+                    <a href="pages/scheduling.html" class="panel-link">Open schedule <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <ul class="today-list" id="todayList"><li class="empty">Loading…</li></ul>
+            </section>
+
+            <!-- Conflicts -->
+            <section class="panel panel-conflicts" aria-labelledby="conflictHead">
+                <div class="panel-head">
+                    <h2 id="conflictHead"><i class="fas fa-triangle-exclamation"></i>Conflicts</h2>
+                    <a href="pages/scheduling.html" class="panel-link">Resolve <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="conflict-types" id="conflictTypes"></div>
+                <ul class="conflict-list" id="conflictList"><li class="empty">Loading…</li></ul>
+            </section>
+
+            <!-- Classes by day -->
+            <section class="panel panel-third" aria-labelledby="dayHead">
+                <div class="panel-head">
+                    <h2 id="dayHead"><i class="fas fa-chart-column"></i>Classes by day</h2>
+                </div>
+                <div class="day-chart" id="dayChart" role="img" aria-label="Number of classes per day"></div>
+            </section>
+
+            <!-- Room usage -->
+            <section class="panel panel-third" aria-labelledby="roomHead">
+                <div class="panel-head">
+                    <h2 id="roomHead"><i class="fas fa-building"></i>Room usage <span class="panel-note">hours / week</span></h2>
+                    <a href="pages/classrooms.html" class="panel-link">Rooms <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <ul class="bar-list" id="roomList"><li class="empty">Loading…</li></ul>
+            </section>
+
+            <!-- Instructor workload -->
+            <section class="panel panel-third panel-load" aria-labelledby="loadHead">
+                <div class="panel-head">
+                    <h2 id="loadHead"><i class="fas fa-user-tie"></i>Instructor workload <span class="panel-note">hours / week</span></h2>
+                    <a href="pages/load_summary.html" class="panel-link">Summary of load <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <ul class="bar-list" id="loadList"><li class="empty">Loading…</li></ul>
+                <div class="coverage" id="loadCoverage"></div>
+            </section>
+
+            <!-- Recently added -->
+            <section class="panel panel-wide" aria-labelledby="recentHead">
+                <div class="panel-head">
+                    <h2 id="recentHead"><i class="fas fa-clock"></i>Recently added schedules</h2>
+                    <a href="pages/scheduling.html" class="panel-link">View all <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="table-wrap">
+                    <table class="dash-table">
+                        <thead><tr><th>Subject</th><th>Section</th><th>Instructor</th><th>Room</th><th>When</th></tr></thead>
+                        <tbody id="recentBody"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Activity (admin only) -->
+            <section class="panel panel-wide d-none" id="dashActivityPanel" aria-labelledby="actHead">
+                <div class="panel-head">
+                    <h2 id="actHead"><i class="fas fa-clock-rotate-left"></i>Recent activity</h2>
+                    <a href="pages/activity_log.html" class="panel-link">Full log <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <ul class="activity-list" id="dashActivityList"></ul>
+            </section>
+
+        </div>
+
+        <!-- Quick actions -->
+        <section class="quick" aria-label="Quick actions">
+            <a href="pages/scheduling.html"><i class="fas fa-wand-magic-sparkles"></i>Auto-generate schedule</a>
+            <a href="pages/class_sections.html"><i class="fas fa-users"></i>Manage sections</a>
+            <a href="pages/instructors.html"><i class="fas fa-file-excel"></i>Teaching load export</a>
+            <a href="pages/schedule_archives.html"><i class="fas fa-box-archive"></i>Archives <span id="archiveCount"></span></a>
+        </section>
+
+        <footer class="dash-footer">&copy; 2026 College of Computing and Information Sciences &middot; Northwest Samar State University</footer>
+    </main>
+
+    </div><!-- /.app-main -->
+
+    <script>
+    (function () {
+        var toggle = document.getElementById('sidebarToggle');
+        var backdrop = document.getElementById('sidebarBackdrop');
+        function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+        if (toggle) { toggle.addEventListener('click', function () { document.body.classList.toggle('sidebar-open'); }); }
+        if (backdrop) { backdrop.addEventListener('click', closeSidebar); }
+    })();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/core/notify.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/dashboard/dashboard.js"></script>
+    <script src="js/pwa/pwa.js"></script>
+</body>
+</html>

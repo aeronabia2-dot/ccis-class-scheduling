@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="../js/core/auth-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum Checklist | CCIS Scheduling System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <link href="../css/core/style.css" rel="stylesheet">
+    <link href="../css/core/page-shell.css" rel="stylesheet">
+    <link href="../css/curriculum/curriculum.css" rel="stylesheet">
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="theme-color" content="#146C43">
+    <link rel="icon" type="image/png" sizes="192x192" href="../images/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="../images/icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="CCIS Scheduling">
+    <link rel="stylesheet" href="../css/core/notifications.css">
+</head>
+
+<body>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notificationToast" class="toast align-items-center border-0 ntf-success" role="status" aria-live="polite" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-circle-check me-2" id="toastIcon"></i>
+                    <span id="toastMessage">Ready.</span>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+    <button class="sidebar-toggle-mobile" id="sidebarToggle" type="button" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <aside class="sidebar-nav" id="sidebarNav">
+        <a class="sidebar-brand" href="../dashboard.html">
+            <span class="brand-mark"><i class="fas fa-calendar-days"></i></span>
+            <span>CCIS Scheduling</span>
+        </a>
+
+        <nav class="sidebar-links">
+                <a class="sidebar-link" href="../dashboard.html"><i class="fas fa-house"></i><span>Dashboard</span></a>
+                <a class="sidebar-link" href="scheduling.html"><i class="fas fa-calendar-check"></i><span>Scheduling</span></a>
+                <a class="sidebar-link" href="classrooms.html"><i class="fas fa-building"></i><span>Rooms</span></a>
+                <a class="sidebar-link" href="instructors.html"><i class="fas fa-user-tie"></i><span>Instructors</span></a>
+                <a class="sidebar-link" href="subjects.html"><i class="fas fa-book"></i><span>Subjects</span></a>
+                <a class="sidebar-link active" href="curriculum.html"><i class="fas fa-list-check"></i><span>Curriculum</span></a>
+                <a class="sidebar-link" href="class_sections.html"><i class="fas fa-users"></i><span>Sections</span></a>
+                <a class="sidebar-link" href="schedule_archives.html"><i class="fas fa-box-archive"></i><span>Archives</span></a>
+                <a class="sidebar-link" href="load_summary.html"><i class="fas fa-table-list"></i><span>Summary of Load</span></a>
+                <a class="sidebar-link" href="user_management.html"><i class="fas fa-user-gear"></i><span>User Management</span></a>
+                <a class="sidebar-link" href="activity_log.html"><i class="fas fa-clock-rotate-left"></i><span>Activity Log</span></a>
+        </nav>
+
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <span class="sidebar-user-avatar"><i class="fas fa-user"></i></span>
+                    <div class="sidebar-user-meta">
+                        <span class="sidebar-user-name" data-current-user-name>—</span>
+                        <span class="sidebar-user-role" data-current-user-role>—</span>
+                    </div>
+                </div>
+                <button type="button" class="sidebar-logout" data-logout>
+                    <i class="fas fa-right-from-bracket"></i><span>Log Out</span>
+                </button>
+            </div>
+    </aside>
+
+    <div class="app-main">
+
+    <main class="container-fluid curriculum-shell pg-shell">
+        <!-- ============================================================
+             COMMAND BAR
+             ============================================================ -->
+        <header class="pg-topbar" aria-label="Curriculum actions">
+            <div class="pg-title-block">
+                <h1 class="pg-title"><i class="fas fa-list-check pg-title-icon"></i>Curriculum Checklist</h1>
+                <p class="pg-subtitle">1st&ndash;4th Year checklist per program. Seeded from your SY 2022-2023 checklist &mdash; edit, add, or remove any entry below.</p>
+            </div>
+            <div class="pg-actions">
+                <button class="btn btn-primary-modern text-white pg-primary" id="btnAddSubject" type="button">
+                    <i class="fas fa-plus me-2"></i>Add Subject
+                </button>
+            </div>
+        </header>
+
+        <!-- ============================================================
+             STATUS STRIP
+             ============================================================ -->
+        <section class="pg-stats" aria-label="Curriculum summary">
+            <div class="pg-stat"><span class="pg-stat-icon pg-tone-warning"><i class="fas fa-list-check"></i></span><div><div class="pg-stat-value" id="metricTotalSubjects">0</div><div class="pg-stat-label">Subjects</div></div></div>
+            <div class="pg-stat"><span class="pg-stat-icon pg-tone-info"><i class="fas fa-layer-group"></i></span><div><div class="pg-stat-value" id="metricPrograms">0</div><div class="pg-stat-label">Programs</div></div></div>
+            <div class="pg-stat"><span class="pg-stat-icon pg-tone-success"><i class="fas fa-clock"></i></span><div><div class="pg-stat-value" id="metricUnits">0</div><div class="pg-stat-label">Units (this program)</div></div></div>
+            <div class="pg-stat"><span class="pg-stat-icon pg-tone-primary"><i class="fas fa-triangle-exclamation"></i></span><div><div class="pg-stat-value" id="metricDuplicates">0</div><div class="pg-stat-label">Duplicate codes</div></div></div>
+        </section>
+
+        <!-- ============================================================
+             FILTER BAR - program tabs + search. Both fit inline, no
+             "More" needed.
+             ============================================================ -->
+        <section class="pg-filters" aria-label="Filter curriculum">
+            <div class="pg-filter-row">
+                <div class="pg-field pg-field-wide">
+                    <label class="pg-label" for="programTabs">Program</label>
+                    <div class="btn-group w-100 curr-tab-group" id="programTabs" role="group"></div>
+                </div>
+                <div class="pg-field pg-field-search">
+                    <label class="visually-hidden" for="filterSearch">Search</label>
+                    <i class="fas fa-magnifying-glass pg-field-icon"></i>
+                    <input type="search" id="filterSearch" class="form-control" placeholder="Course code, description, prerequisite…" autocomplete="off">
+                </div>
+                <div class="pg-filter-buttons">
+                    <button class="btn btn-outline-secondary" id="btnRefresh" type="button" title="Reload curriculum from the server" aria-label="Refresh"><i class="fas fa-rotate"></i></button>
+                    <button class="btn btn-outline-secondary" id="btnClearFilters" type="button" title="Clear all filters" aria-label="Clear filters"><i class="fas fa-eraser"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section id="curriculumBoard"></section>
+    </main>
+
+    <!-- Subject Modal -->
+    <div class="modal fade" id="subjectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="subjectModalTitle">
+                            <i class="fas fa-list-check text-warning me-2"></i>Add Curriculum Subject
+                        </h5>
+                        <p class="text-muted small mb-0">Required fields are marked with an asterisk.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form id="curriculumForm" novalidate>
+                    <input type="hidden" id="curriculumId">
+
+                    <div class="modal-body p-4">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Program *</label>
+                                <select class="form-select" id="cfProgram" required>
+                                    <option value="BSIT">BSIT</option>
+                                    <option value="BSCS">BSCS</option>
+                                    <option value="BSIS">BSIS</option>
+                                    <option value="BSEMC">BSEMC</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Year Level *</label>
+                                <select class="form-select" id="cfYearLevel" required>
+                                    <option value="1st Year">1st Year</option>
+                                    <option value="2nd Year">2nd Year</option>
+                                    <option value="3rd Year">3rd Year</option>
+                                    <option value="4th Year">4th Year</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Semester *</label>
+                                <select class="form-select" id="cfSemester" required>
+                                    <option value="1st Semester">1st Semester</option>
+                                    <option value="2nd Semester">2nd Semester</option>
+                                    <option value="Summer">Summer</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Course Code *</label>
+                                <input type="text" class="form-control" id="cfCourseCode" placeholder="e.g. IT102" required>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Description *</label>
+                                <input type="text" class="form-control" id="cfDescription" placeholder="e.g. Fundamentals of Database Systems" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Units *</label>
+                                <input type="number" step="0.5" min="0" class="form-control" id="cfUnits" required>
+                                <div class="form-text">Use the "Non-credit" toggle for courses like NSTP that are written in parentheses on the official checklist.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Lecture Hrs./Wk.</label>
+                                <input type="number" step="0.5" min="0" class="form-control" id="cfLecHours" value="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Laboratory Hrs./Wk.</label>
+                                <input type="number" step="0.5" min="0" class="form-control" id="cfLabHours" value="0">
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="cfNonCredit">
+                            <label class="form-check-label small fw-semibold" for="cfNonCredit">
+                                Non-credit course (prints as "(units)" on the checklist, e.g. NSTP)
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="form-label fw-semibold">Prerequisite(s)</label>
+                            <input type="text" class="form-control" id="cfPrerequisite" placeholder="e.g. ITE1, ITE2 or Regular 3rd Year">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary-modern text-white px-5">
+                            <i class="fas fa-save me-2"></i>Save Subject
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    </div><!-- /.app-main -->
+
+    <script>
+    (function () {
+        var toggle = document.getElementById('sidebarToggle');
+        var backdrop = document.getElementById('sidebarBackdrop');
+        function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+        if (toggle) { toggle.addEventListener('click', function () { document.body.classList.toggle('sidebar-open'); }); }
+        if (backdrop) { backdrop.addEventListener('click', closeSidebar); }
+    })();
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/core/notify.js"></script>
+    <script src="../js/core/utils.js"></script>
+    <script src="../js/curriculum/curriculum-state.js"></script>
+    <script src="../js/curriculum/api.js"></script>
+    <script src="../js/curriculum/ui.js"></script>
+    <script src="../js/curriculum/utils.js"></script>
+    <script src="../js/curriculum/curriculum.js"></script>
+    <script src="../js/pwa/pwa.js"></script>
+</body>
+</html>

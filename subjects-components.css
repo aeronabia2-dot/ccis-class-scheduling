@@ -1,0 +1,58 @@
+/*
+    Class Components builder - Subject Management
+    Kept in its own file rather than merged into the existing
+    subjects.css (not part of this upload) so nothing there risks
+    being overwritten.
+*/
+
+.component-row {
+    background: #fff;
+    position: relative;
+}
+
+.component-row[data-component-type="Lecture"] {
+    border-left: 4px solid #b58900;
+}
+
+.component-row[data-component-type="Laboratory"] {
+    border-left: 4px solid #146c43;
+}
+
+.component-row.is-invalid {
+    border-color: #dc3545;
+}
+
+.component-row [data-component-error]:not(:empty) {
+    display: block;
+}
+
+.component-row [data-component-calc] i {
+    margin-right: 0.25rem;
+}
+
+#componentsList:empty::after {
+    content: "No class components yet - add at least one Lecture or Laboratory component.";
+    display: block;
+    font-size: 0.85rem;
+    color: #6c757d;
+    padding: 0.75rem;
+    border: 1px dashed #ced4da;
+    border-radius: 0.5rem;
+}
+
+.summary-component-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    margin: 0.15rem 0.35rem 0.15rem 0;
+}
+
+@media (max-width: 576px) {
+    .component-row .row.g-2 > [class^="col-"] {
+        margin-bottom: 0.25rem;
+    }
+}
