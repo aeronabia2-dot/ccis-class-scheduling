@@ -1,5 +1,0 @@
-/** User Management page — mostly reuses .glass-card/.hero-card from core/style.css. **/
-
-.users-shell .table td, .users-shell .table th { vertical-align: middle; }
-.users-shell .badge { font-weight: 600; font-size: .74rem; }
-#accessRestricted { max-width: 520px; margin: 40px auto; }
