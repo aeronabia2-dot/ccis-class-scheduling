@@ -1,0 +1,486 @@
+/* ==========================================================================
+   CCIS Scheduling System — Adaptive layer (screen size + browser zoom)
+   --------------------------------------------------------------------------
+   Loaded LAST on every page (login, dashboard and all pages/*.html) so it
+   can harmonise the per-page stylesheets without rewriting them.
+
+   Why it works for both screen size AND zoom: browser zoom simply changes
+   the viewport width in CSS pixels (zoom in = narrower, zoom out = wider),
+   so one fluid system covers both. Nothing here uses fixed device widths.
+
+   What it guarantees
+     1. One fluid type scale for the whole system (rem-based, respects the
+        browser's own font-size setting).
+     2. The sidebar scales with the text, fits short windows, and becomes an
+        off-canvas drawer on narrow / heavily zoomed-in windows.
+     3. The page can never scroll sideways; wide content (tables, matrices)
+        scrolls INSIDE its own container instead of breaking the layout.
+     4. Modals/dropdowns/offcanvas never exceed the window; modal headers and
+        footers stay visible while the body scrolls.
+     5. The login card is reachable at any zoom level.
+
+   Everything is inside @media screen on purpose: the print layouts (long
+   bond, matrix, room monitoring, teaching load) are tuned separately and
+   must not be touched by anything in this file.
+   ========================================================================== */
+
+@media screen {
+  /* 1. Fluid type scale ---------------------------------------------------- */
+  /* Same curve the dashboard already used (15px floor, 23px cap at a 16px
+     browser default) but expressed in rem, so a user who raised their
+     browser's default font size still gets it. :root:root outranks the
+     older html:has(...) copies of this rule in style.css / page-shell.css. */
+  :root:root {
+    font-size: clamp(0.9375rem, calc(0.5vw + 0.5rem), 1.4375rem);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Sidebar is rem-based so it grows/shrinks together with its own text.
+       (dashboard.css and style.css both declare a fixed 268px.) */
+    --sidebar-w: 15.5rem;
+  }
+
+  /* Dashboard sized itself with its own px clamp; follow the root instead. */
+  .dash {
+    font-size: 1rem;
+  }
+
+  /* Control heights follow the text size instead of a fixed 38px. */
+  .pg-shell {
+    --pg-field-h: 2.375rem;
+  }
+
+  .scheduling-shell {
+    --sch-field-h: 2.375rem;
+  }
+
+  /* 2. No sideways page scroll ----------------------------------------------- */
+  /* `clip` (unlike `hidden`) does not create a scroll container, so sticky
+     headers inside the page keep working. */
+  body {
+    overflow-x: clip;
+  }
+
+  .app-main {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Flex / grid children may shrink below their content width; without this a
+     single long word or wide table stretches the whole page. */
+  .app-main > *,
+  main.container-fluid > *,
+  .pg-shell > *,
+  .dash > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  img,
+  canvas,
+  video {
+    max-width: 100%;
+  }
+
+  .pg-title,
+  .sch-title,
+  .page-title,
+  .dash-title,
+  .card-title,
+  .modal-title,
+  .pg-subtitle,
+  .modal-body,
+  .table-responsive td,
+  .table-responsive th {
+    overflow-wrap: break-word;
+  }
+
+  /* Keep ultra-wide / far-zoomed-out screens from stretching lines forever. */
+  main.container-fluid,
+  .dash {
+    max-width: 2560px;
+    margin-inline: auto;
+  }
+
+  /* 3. Sidebar ---------------------------------------------------------------- */
+  .sidebar-links {
+    min-height: 0;
+    overscroll-behavior: contain;
+  }
+
+  /* Short windows (laptop zoomed in, phone in landscape): tighten the vertical
+     rhythm so brand, links, user and Sign out all stay reachable. */
+  @media (max-height: 760px) {
+    .sidebar-brand {
+      padding: 14px 18px;
+    }
+
+    .sidebar-links {
+      gap: 2px;
+      padding: 10px 12px;
+    }
+
+    .sidebar-section-label {
+      padding: 8px 10px 4px;
+    }
+
+    .sidebar-link {
+      padding: 0.5rem 0.8rem;
+    }
+
+    .sidebar-footer {
+      padding: 10px 12px 12px;
+    }
+
+    .sidebar-user {
+      padding: 0.2rem 0.3rem 0.5rem;
+    }
+
+    .sidebar-logout {
+      padding: 0.5rem 0.8rem;
+    }
+  }
+
+  @media (max-height: 560px) {
+    .sidebar-brand small,
+    .sidebar-user-role {
+      display: none;
+    }
+
+    .sidebar-brand {
+      padding: 10px 16px;
+    }
+
+    .sidebar-link {
+      padding: 0.4rem 0.7rem;
+    }
+  }
+
+  /* Off-canvas drawer: never wider than the screen. */
+  @media (max-width: 991.98px) {
+    .sidebar-nav {
+      width: min(var(--sidebar-w), 88vw);
+    }
+  }
+
+  /* 4. Tables ------------------------------------------------------------------ */
+  /* Every data table scrolls inside its own card on narrow / zoomed-in
+     windows; columns keep a readable minimum instead of being crushed. */
+  .table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive > .table:not(.table-sm) {
+    min-width: 40rem;
+  }
+
+  .table-responsive > .instructor-table {
+    min-width: 50rem;
+  }
+
+  .table-responsive > .classroom-table,
+  .table-responsive > .subject-table {
+    min-width: 56rem;
+  }
+
+  .dash-table {
+    min-width: 34em;
+  }
+
+  /* 5. Toolbars ---------------------------------------------------------------- */
+  @media (max-width: 575.98px) {
+    .pg-actions > .btn,
+    .pg-actions > .dropdown,
+    .pg-actions > .btn-group,
+    .sch-actions > .btn,
+    .sch-actions > .dropdown,
+    .sch-actions > .btn-group {
+      flex: 1 1 auto;
+    }
+
+    .pg-actions .dropdown > .btn,
+    .sch-actions .dropdown > .btn {
+      width: 100%;
+    }
+  }
+
+  /* 6. Dropdowns / offcanvas ---------------------------------------------------- */
+  .dropdown-menu {
+    max-width: calc(100vw - 1rem);
+  }
+
+  .dropdown-menu.show {
+    max-height: calc(100vh - 5rem);
+    max-height: calc(100dvh - 5rem);
+    overflow-y: auto;
+  }
+
+  .pg-menu {
+    min-width: min(16.25rem, calc(100vw - 1rem));
+  }
+
+  .sch-menu {
+    min-width: min(18rem, calc(100vw - 1rem));
+  }
+
+  .sch-insights {
+    --bs-offcanvas-width: min(25rem, 100vw);
+  }
+
+  /* 7. Modals --------------------------------------------------------------------- */
+  /* Tighter margins so a dialog can use the window, and a hard ceiling of the
+     visible height. The header and footer stay on screen; only the body
+     scrolls. Works for dialogs with or without .modal-dialog-scrollable and
+     for the ones that wrap header/body/footer in a <form>. The scheduling
+     Create/Edit dialog already does this itself and is left alone. */
+  .modal {
+    --bs-modal-margin: 0.5rem;
+  }
+
+  @media (min-width: 992px) {
+    .modal {
+      --bs-modal-margin: 1.25rem;
+    }
+  }
+
+  /* Bootstrap's modal widths are fixed px (500 / 800 / 1140). In rem they grow
+     with the fluid type, so dialogs keep the same proportion to the text on a
+     large monitor as on a laptop. Same breakpoints as Bootstrap. */
+  @media (min-width: 576px) {
+    .modal {
+      --bs-modal-width: 31.25rem;
+    }
+
+    .modal-sm {
+      --bs-modal-width: 18.75rem;
+    }
+
+    .modal-dialog:not(.modal-fullscreen) {
+      max-width: min(var(--bs-modal-width, 31.25rem), calc(100vw - 1rem));
+    }
+  }
+
+  @media (min-width: 992px) {
+    .modal-lg,
+    .modal-xl {
+      --bs-modal-width: 50rem;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .modal-xl {
+      --bs-modal-width: 71.25rem;
+    }
+  }
+
+  .modal-dialog:not(.modal-fullscreen):not(.schedule-create-dialog) .modal-content {
+    max-height: calc(100vh - 2 * var(--bs-modal-margin));
+    max-height: calc(100dvh - 2 * var(--bs-modal-margin));
+  }
+
+  .modal-dialog:not(.modal-fullscreen) .modal-content:not(.schedule-create-modal) > form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: inherit;
+  }
+
+  .modal-dialog:not(.modal-fullscreen) .modal-content:not(.schedule-create-modal) > .modal-body,
+  .modal-dialog:not(.modal-fullscreen) .modal-content:not(.schedule-create-modal) > form > .modal-body {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .modal-dialog .modal-header,
+  .modal-dialog .modal-footer {
+    flex-shrink: 0;
+  }
+
+  /* The scheduling dialog sized itself with 100vh, which on phones includes the
+     browser toolbar; dvh tracks the visible area. */
+  @supports (height: 100dvh) {
+    .schedule-create-dialog {
+      height: calc(100dvh - 1rem);
+      max-height: calc(100dvh - 1rem);
+    }
+  }
+
+  /* 8. Login page ------------------------------------------------------------------ */
+  /* The page used overflow:hidden with a vertically centred card, so on a short
+     window (zoomed in, phone landscape) the top/bottom of the card were cut off
+     and could not be scrolled to. margin:auto centres when there is room and
+     lets the page scroll when there is not. */
+  .login-body {
+    align-items: flex-start;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .login-shell {
+    margin: auto;
+    max-width: 26.25rem;
+  }
+}
+
+/* ==========================================================================
+   9. Adaptive fixes v2 — filter fields, matrix time column, zoom-proof sizing
+   --------------------------------------------------------------------------
+   Root cause of the clipped filter text / cut-off time labels: control
+   heights and the TIME column were fixed in PIXELS while the text inside is
+   in rem, and rem now follows the viewport (see section 1). At 50% zoom the
+   root font reaches 23px, so the text outgrew its px-sized box and was cut.
+   Everything below sizes boxes in rem / content so they always grow with the
+   text, whatever zoom the administrator picks.
+   ========================================================================== */
+@media screen {
+  :root:root {
+    /* One 30-minute row of the Weekly Schedule Matrix / Room view. Rem-based
+       so rows grow with the text. JS measures it (measureSlotHeightPx). */
+    --slot-height: 2.9rem;
+  }
+
+  .pg-shell,
+  .scheduling-shell {
+    --pg-field-h: 2.5rem;
+    --sch-field-h: 2.5rem;
+  }
+
+  /* ---- Filter fields / form controls: height follows content ------------- */
+  :root:root :is(.form-select, .form-control, .input-group-text):not(textarea):not(.form-control-color):not(.form-control-sm):not(.form-select-sm):not([type="file"]):not([type="range"]):not([type="checkbox"]):not([type="radio"]) {
+    height: auto;
+    min-height: var(--pg-field-h, 2.5rem);
+  }
+
+  /* Compact, content-sized padding only inside the filter bars. */
+  :root:root :is(.pg-filters, .sch-filters) :is(.form-select, .form-control, .input-group-text):not(textarea) {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    line-height: 1.4;
+  }
+
+  :root:root :is(.form-select):not(.form-select-sm) {
+    /* keep room for the dropdown arrow even when the root font is large */
+    padding-right: 2.25rem;
+    text-overflow: ellipsis;
+  }
+
+  .pg-filters .form-control,
+  .pg-filters .form-select,
+  .sch-filters .form-control,
+  .sch-filters .form-select {
+    font-size: 0.88rem;
+  }
+
+  /* Buttons that sit next to the fields keep the same height. */
+  .pg-filter-buttons .btn,
+  .sch-filter-buttons .btn {
+    height: auto;
+    min-height: var(--pg-field-h, 2.5rem);
+    min-width: var(--pg-field-h, 2.5rem);
+    padding-block: 0.35rem;
+  }
+
+  /* Faculty Matrix filter pills */
+  .fm-field {
+    height: auto;
+    min-height: 2.6rem;
+    flex-basis: 11rem;
+    min-width: 9.5rem;
+  }
+
+  .fm-field-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .fm-input,
+  .fm-select {
+    height: auto;
+    min-height: 2.2rem;
+    line-height: 1.3;
+  }
+
+  .fm-field:has(#fmFilterSubject),
+  .fm-field:has(#fmFilterSection),
+  .fm-field:has(#fmFilterRoom) {
+    flex-basis: 12.5rem;
+    min-width: 11.5rem;
+  }
+
+  .faculty-matrix-modal {
+    --fm-name-w: 13.25rem;
+    --fm-slot-w: 4.75rem;
+  }
+
+  @media (max-width: 767.98px) {
+    .faculty-matrix-modal {
+      --fm-name-w: 9.5rem;
+      --fm-slot-w: 4.25rem;
+    }
+  }
+
+  /* ---- Weekly Schedule Matrix: TIME column ------------------------------- */
+  /* Fixed table layout takes widths from the header row, so give the header
+     cell a rem width that fits "12:30 - 1:00" at the current text size. The
+     !important mirrors the px breakpoints in scheduling.css that this
+     replaces (they would otherwise shrink the column at <992px / <576px). */
+  :root:root .schedule-matrix th.time-col,
+  :root:root .archive-view-matrix th.time-col {
+    width: 7.25rem !important;
+    min-width: 7.25rem !important;
+    max-width: none !important;
+  }
+
+  :root:root .schedule-matrix tbody th.time-col,
+  :root:root .archive-view-matrix tbody th.time-col {
+    padding-inline: 0.4rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    font-variant-numeric: tabular-nums;
+    z-index: 9; /* above cards (8), below the sticky header (10/11) */
+  }
+
+  .schedule-matrix thead th {
+    height: auto;
+    min-height: 2.5rem;
+  }
+
+  .schedule-matrix td,
+  .archive-view-matrix td {
+    min-width: 6.5rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .schedule-matrix {
+      min-width: 58rem !important;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .schedule-matrix {
+      min-width: 54rem !important;
+    }
+  }
+
+  /* ---- Room view (matrix by room, one day) -------------------------------- */
+  .room-view-scroll table.rm-table th.rm-time-head,
+  .room-view-scroll table.rm-table td.rm-time {
+    width: 7.25rem;
+    min-width: 7.25rem;
+    padding-inline: 0.4rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .room-view-scroll table.rm-table td.rm-time {
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  .room-view-scroll {
+    max-height: max(32rem, calc(100vh - 16rem));
+  }
+}

@@ -1,0 +1,1805 @@
+@import url("../../vendor/fonts/fonts.css");
+
+/* ==========================================================================
+   CCIS Scheduling System — Design Tokens
+   Palette: white surfaces + institutional green. Landscape-first layout
+   built around a fixed left sidebar so wide scheduling screens get the
+   full width of the viewport for content.
+   ========================================================================== */
+:root {
+  /* Greens (brand) */
+  --green-900: #0a3524;
+  --green-800: #0f4a31;
+  --green-700: #146c43;
+  --green-600: #1c8c57;
+  --green-500: #2fa968;
+  --green-300: #8fd4ae;
+  --green-200: #bfe7d2;
+  --green-100: #e1f5ea;
+  --green-50: #f3fbf7;
+
+  /* Tonal families used for metric icons / badges — all green-adjacent */
+  --sage-100: #e7f4ea;
+  --sage-700: #2f7d4f;
+  --teal-100: #e1f5f1;
+  --teal-700: #0e7a68;
+  --olive-100: #eff5df;
+  --olive-700: #5c7a1e;
+  --moss-100: #eaf3e3;
+  --moss-700: #3e6b2a;
+
+  --primary: var(--green-700);
+  --primary-dark: var(--green-800);
+  --primary-light: var(--green-50);
+  --primary-soft: var(--green-100);
+  --secondary: var(--green-600);
+  --success: var(--green-700);
+  --danger: #b3261e;
+  --warning: #8a6d1b;
+  --info: var(--teal-700);
+
+  --dark: #101b15;
+  --text: #3c4a42;
+  --muted: #6b786f;
+  --surface: #fff;
+  --surface-soft: #f6fbf8;
+  --soft: #f6fbf8;
+  --border: #dceee3;
+  --border-soft: #eaf5ef;
+
+  /* ---- Realistic 3D lighting: light source upper-left, shadow bottom-right ---- */
+  --light-x: -1px;
+  --light-y: -1px;
+  --shadow-x: 0px;
+
+  /* ---- Elevation system (0 = flat background, 5 = hero/overlay) ---- */
+  --shadow-sm:
+    0 1px 2px rgba(10, 53, 36, 0.05), 0 2px 10px rgba(10, 53, 36, 0.06);
+  --shadow-md:
+    0 2px 4px rgba(10, 53, 36, 0.05), 0 10px 26px rgba(10, 53, 36, 0.09);
+  --shadow-lg:
+    0 4px 10px rgba(10, 53, 36, 0.08), 0 24px 48px rgba(10, 53, 36, 0.14);
+
+  --elevation-0: none;
+  --elevation-1:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 1px 2px rgba(10, 53, 36, 0.05),
+    0 2px 8px rgba(10, 53, 36, 0.06);
+  --elevation-2:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset, 0 2px 4px rgba(10, 53, 36, 0.06),
+    0 10px 22px rgba(10, 53, 36, 0.09);
+  --elevation-3:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 4px 10px rgba(10, 53, 36, 0.08),
+    0 18px 36px rgba(10, 53, 36, 0.13);
+  --elevation-4:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 8px 18px rgba(10, 53, 36, 0.12),
+    0 28px 56px rgba(10, 53, 36, 0.18);
+  --elevation-5:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 14px 28px rgba(10, 53, 36, 0.16),
+    0 40px 80px rgba(10, 53, 36, 0.24);
+
+  --elevation-1-hover:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 3px 6px rgba(10, 53, 36, 0.07),
+    0 14px 28px rgba(10, 53, 36, 0.11);
+  --elevation-2-hover:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset, 0 6px 14px rgba(10, 53, 36, 0.1),
+    0 22px 40px rgba(10, 53, 36, 0.15);
+  --elevation-3-hover:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset, 0 10px 20px rgba(10, 53, 36, 0.12),
+    0 30px 54px rgba(10, 53, 36, 0.18);
+
+  --inner-shadow: inset 0 1px 3px rgba(10, 53, 36, 0.07);
+  --inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  --focus-ring: 0 0 0 0.2rem rgba(28, 140, 87, 0.18);
+  --glow-green:
+    0 0 0 1px rgba(47, 169, 104, 0.35), 0 6px 18px rgba(28, 140, 87, 0.28);
+  --glow-danger:
+    0 0 0 1px rgba(179, 38, 30, 0.3), 0 6px 16px rgba(179, 38, 30, 0.22);
+
+  /* ---- Surfaces & gradients ---- */
+  --surface-gradient: linear-gradient(160deg, #ffffff 0%, #fbfefc 100%);
+  --surface-gradient-raised: linear-gradient(
+    160deg,
+    #ffffff 0%,
+    #f7fcf9 60%,
+    #f1f9f4 100%
+  );
+  --brand-gradient: linear-gradient(
+    135deg,
+    var(--green-600) 0%,
+    var(--green-700) 52%,
+    var(--green-800) 100%
+  );
+  --brand-gradient-hover: linear-gradient(
+    135deg,
+    var(--green-500) 0%,
+    var(--green-700) 55%,
+    var(--green-800) 100%
+  );
+  --sidebar-gradient: linear-gradient(
+    190deg,
+    var(--green-900) 0%,
+    var(--green-800) 55%,
+    var(--green-700) 120%
+  );
+
+  /* ---- Glass surfaces (used sparingly: nav overlays, filters, modal headers) ---- */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-strong: rgba(255, 255, 255, 0.86);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.55);
+  --glass-blur: blur(18px);
+  --glass-dark-bg: rgba(10, 53, 36, 0.55);
+  --glass-dark-border: 1px solid rgba(255, 255, 255, 0.14);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --font-display: "Sora", "Inter", "Segoe UI", Arial, sans-serif;
+  --font-body: "Inter", "Segoe UI", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --sidebar-w: 268px;
+  --sidebar-w-collapsed: 84px;
+
+  /* ---- Motion ---- */
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur-base: 220ms;
+  --dur-slow: 350ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Shared shell/card/button/table/badge/modal rules inherited from style.css
+   (loaded before this file on every scheduling.html page). */
+
+/* ==========================================================================
+   Scheduling matrix — timetable grid, legend, archive-view, and print sheet
+   ========================================================================== */
+:root {
+  --slot-height: 44px;
+  --block-gap: 4px;
+  --matrix-line: #e6efea;
+  --matrix-soft-line: #f2f8f4;
+  --matrix-head: var(--green-100);
+  /* ---- Schedule card design tokens (Weekly Schedule Matrix boxes only) ---- */
+  --card-radius: 10px;
+  --card-border-normal: rgba(20, 108, 67, 0.38);
+  --card-border-conflict: #e39089;
+  --card-accent-normal: linear-gradient(
+    180deg,
+    var(--green-500),
+    var(--green-700)
+  );
+  --card-accent-conflict: linear-gradient(180deg, #eda69e, var(--danger));
+  --card-shadow-resting:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3), 0 1px 1px rgba(15, 74, 49, 0.07),
+    0 3px 7px rgba(15, 74, 49, 0.1), 0 11px 20px -8px rgba(15, 74, 49, 0.2);
+  --card-shadow-hover:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45), 0 2px 3px rgba(15, 74, 49, 0.1),
+    0 8px 16px rgba(15, 74, 49, 0.16), 0 22px 34px -10px rgba(15, 74, 49, 0.28);
+  --card-shadow-resting-conflict:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.3), 0 1px 1px rgba(179, 38, 30, 0.08),
+    0 3px 7px rgba(179, 38, 30, 0.12), 0 11px 20px -8px rgba(179, 38, 30, 0.26);
+  --card-shadow-hover-conflict:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+    0 2px 3px rgba(179, 38, 30, 0.12), 0 8px 16px rgba(179, 38, 30, 0.2),
+    0 22px 34px -10px rgba(179, 38, 30, 0.34);
+  --card-transition:
+    transform var(--dur-fast, 150ms) var(--ease-standard, ease),
+    box-shadow var(--dur-fast, 150ms) var(--ease-standard, ease),
+    filter var(--dur-fast, 150ms) var(--ease-standard, ease);
+}
+
+.active-term-banner {
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--green-200);
+  background: var(--green-50);
+  color: var(--green-800);
+  font-weight: 800;
+}
+
+.schedule-matrix-card {
+  border-radius: 16px !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--elevation-3) !important;
+  background: #fff !important;
+  overflow: hidden;
+}
+.matrix-print-heading {
+  padding: 12px 16px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(120deg, var(--green-50) 0%, #fff 100%);
+}
+.matrix-school-name {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--green-800);
+  text-transform: uppercase;
+}
+.matrix-title {
+  margin-top: 3px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: -0.01em;
+}
+.matrix-section-line {
+  margin-top: 6px;
+  min-width: 150px;
+  padding: 0.32rem 0.75rem;
+  background: var(--green-100);
+  border: 1px solid var(--green-200);
+  color: var(--green-800);
+  font-size: 0.78rem;
+}
+.matrix-term-line {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.matrix-toolbar {
+  background: #fff;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.schedule-matrix-wrapper {
+  max-height: 76vh;
+  overflow: auto;
+  padding-bottom: 0 !important;
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 0 0 14px 14px !important;
+}
+
+/* Weekly Schedule Matrix full screen -----------------------------------
+   Simulated with fixed positioning (see js/scheduling/ui/matrix-fullscreen.js
+   for why this isn't the native Fullscreen API) so the card fills the
+   viewport, its toolbar/heading stay put, and the scrollable area
+   (schedule-matrix-wrapper, or room-view-scroll when "By Room" is active)
+   grows to take up all the freed space. Editing stays available exactly
+   as before - the schedule modal simply layers above this on its own
+   higher z-index. */
+.schedule-matrix-card.matrix-fullscreen-active {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  max-height: none;
+  border-radius: 0 !important;
+}
+.schedule-matrix-card.matrix-fullscreen-active .matrix-print-heading,
+.schedule-matrix-card.matrix-fullscreen-active .matrix-toolbar {
+  flex: 0 0 auto;
+}
+.schedule-matrix-card.matrix-fullscreen-active .schedule-matrix-wrapper {
+  flex: 1 1 auto;
+  max-height: none;
+}
+.schedule-matrix-card.matrix-fullscreen-active .room-view-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+.schedule-matrix-card.matrix-fullscreen-active .room-view-scroll {
+  flex: 1 1 auto;
+  max-height: none;
+}
+
+/* Locks background scroll while the matrix is full screen. */
+body.matrix-fullscreen-open {
+  overflow: hidden;
+}
+.schedule-matrix {
+  min-width: 960px;
+  table-layout: fixed;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: #fff !important;
+  font-family: var(--font-mono);
+}
+
+.print-matrix-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding: 20px 22px 22px;
+  border-top: 1px solid var(--border);
+  background: linear-gradient(120deg, var(--green-50) 0%, #fff 100%);
+}
+.print-instructor-subjects,
+.print-room-subjects {
+  min-width: 0;
+}
+.print-matrix-summary h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  color: var(--dark);
+  font-size: 0.83rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.print-matrix-summary h3 i {
+  color: var(--green-700);
+  font-size: 0.78rem;
+}
+.print-room-subjects h3 i {
+  color: var(--info);
+}
+.print-instructor-grid,
+.print-room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.print-instructor-item,
+.print-room-item {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--green-700);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  box-shadow: var(--shadow-sm);
+  transition: 0.15s;
+}
+.print-room-item {
+  border-left-color: var(--info);
+}
+.print-instructor-item:hover,
+.print-room-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.print-instructor-item strong,
+.print-room-item strong {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--dark);
+  font-size: 0.81rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.print-instructor-item span,
+.print-room-item span {
+  display: block;
+  color: var(--muted);
+  font-weight: 600;
+}
+.print-summary-empty {
+  grid-column: 1/-1;
+  border-left-color: var(--border) !important;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 700;
+}
+@media (max-width: 768px) {
+  .print-matrix-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.schedule-matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 40px;
+  padding: 0.4rem 0.3rem;
+  background: linear-gradient(
+    180deg,
+    var(--green-100),
+    var(--matrix-head)
+  ) !important;
+  color: var(--green-900) !important;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.045em;
+  text-align: center;
+  vertical-align: middle;
+  border-right: 1px solid var(--matrix-line) !important;
+  border-bottom: 2px solid var(--green-700) !important;
+  box-shadow: 0 2px 6px rgba(10, 53, 36, 0.06) !important;
+}
+.schedule-matrix th.time-col {
+  position: sticky;
+  left: 0;
+  z-index: 11;
+  width: 108px;
+  min-width: 108px;
+  max-width: 108px;
+  background: linear-gradient(
+    180deg,
+    var(--green-100),
+    var(--matrix-head)
+  ) !important;
+  color: var(--green-900) !important;
+  text-align: center;
+  border-right: 2px solid var(--green-700) !important;
+  box-shadow: 2px 0 6px rgba(10, 53, 36, 0.06) !important;
+}
+.schedule-matrix tbody th.time-col {
+  height: var(--slot-height);
+  padding: 0 0.3rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+  background: var(--green-50) !important;
+  color: var(--green-900) !important;
+  border-right: 2px solid var(--green-700) !important;
+  border-bottom: 1px solid var(--matrix-line) !important;
+}
+.schedule-matrix td {
+  height: var(--slot-height);
+  min-width: 105px;
+  padding: 0 !important;
+  position: relative;
+  vertical-align: top;
+  background: #fff !important;
+  border-right: 1px solid var(--matrix-soft-line) !important;
+  border-bottom: 1px solid var(--matrix-line) !important;
+}
+.schedule-matrix tbody tr:nth-child(even) td {
+  background: #fbfefc !important;
+}
+.schedule-matrix td:hover,
+.schedule-matrix td.has-schedule,
+.schedule-matrix td.covered-slot {
+  background: var(--green-50) !important;
+}
+
+/* ==========================================================================
+   Weekly Schedule Matrix — schedule cards
+   Modern, subtly-3D card treatment for the individual boxes only. Matrix
+   grid, positioning, sizing and conflict-detection logic are untouched -
+   every dimension here (--exact-height, left/width/top) is still set by
+   calendar.js exactly as before; only paint (shadow/gradient/border) and
+   screen-only interaction react to those values.
+   ========================================================================== */
+
+/* Base card: elevated, dimensional surface */
+.schedule-block {
+  position: absolute;
+  top: 0;
+  left: calc(0.18rem + (var(--stack-index, 0) * 5px));
+  right: 0.18rem;
+  height: var(--exact-height);
+  min-height: var(--exact-height);
+  max-height: var(--exact-height);
+  z-index: 8;
+  overflow: hidden;
+  border-radius: var(--card-radius);
+  padding: 0.3rem 1.55rem 0.3rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1px;
+  text-align: center;
+  background: linear-gradient(
+    160deg,
+    #fbfffd 0%,
+    var(--green-100) 45%,
+    var(--green-200) 100%
+  ) !important;
+  border: 1px solid var(--card-border-normal) !important;
+  color: var(--green-900) !important;
+  box-shadow: var(--card-shadow-resting) !important;
+  cursor: pointer;
+  transition: var(--card-transition);
+  will-change: transform;
+  container-type: size;
+  container-name: schedule-card;
+}
+
+/* Card depth: a soft top sheen (::before) and a colored "spine" accent on
+   the leading edge (::after) - both purely decorative, pointer-events:none,
+   and stripped out entirely for print below. */
+.schedule-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0) 48%
+  );
+}
+.schedule-block::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: var(--card-radius) 0 0 var(--card-radius);
+  background: var(--card-accent-normal);
+}
+.schedule-block > * {
+  position: relative;
+  z-index: 2;
+}
+.schedule-block > .visually-hidden {
+  position: absolute !important;
+  z-index: auto;
+}
+
+/* Card hover: lift + stronger shadow + subtle brighten, transform-only so
+   the timetable position/size never actually changes (spec: hover must
+   not affect layout, printing, or collision detection). */
+.schedule-block:hover {
+  z-index: 12;
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover) !important;
+  filter: saturate(1.06);
+}
+.schedule-block:active {
+  transform: translateY(-1px);
+}
+
+/* Keyboard focus (the Lock/Details/Delete buttons inside are the actual
+   focusable controls - this ring highlights whichever card currently
+   contains focus so keyboard users can tell which one they're on). */
+.schedule-block:focus-within {
+  z-index: 13;
+  box-shadow:
+    var(--card-shadow-hover),
+    0 0 0 3px rgba(28, 140, 87, 0.45) !important;
+}
+
+.schedule-block strong,
+.schedule-block .schedule-subject {
+  display: block;
+  font-size: 0.92rem;
+  line-height: 1.12;
+  color: var(--green-900) !important;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+.schedule-block .schedule-subject-name {
+  display: block;
+  font-size: 0.7rem;
+  line-height: 1.1;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--green-800) !important;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.schedule-block span {
+  display: block;
+  font-size: 0.76rem;
+  line-height: 1.15;
+  color: var(--green-800) !important;
+  font-weight: 700;
+}
+.schedule-block .schedule-room,
+.schedule-block .schedule-instructor {
+  font-weight: 800;
+}
+.schedule-block .schedule-subject,
+.schedule-block .schedule-room,
+.schedule-block .schedule-instructor {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+.schedule-block .time-range {
+  margin-top: 0.06rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--green-900) !important;
+}
+
+/* Conflict cards: same dimensional treatment, distinct color identity,
+   and never rely on color alone - the spine, border, flag, icon, and
+   "CONFLICT" text all carry the signal independently of color vision. */
+.schedule-block.conflict {
+  background: linear-gradient(
+    160deg,
+    #fff8f7 0%,
+    #fcebe9 45%,
+    #f8d3cf 100%
+  ) !important;
+  border-color: var(--card-border-conflict) !important;
+  border-width: 1.5px !important;
+  box-shadow: var(--card-shadow-resting-conflict) !important;
+}
+.schedule-block.conflict::after {
+  background: var(--card-accent-conflict);
+}
+.schedule-block.conflict:hover {
+  box-shadow: var(--card-shadow-hover-conflict) !important;
+}
+.schedule-block.conflict:focus-within {
+  box-shadow:
+    var(--card-shadow-hover-conflict),
+    0 0 0 3px rgba(179, 38, 30, 0.4) !important;
+}
+.schedule-block.conflict strong,
+.schedule-block.conflict span,
+.schedule-block.conflict .time-range {
+  color: #8c241c !important;
+}
+/* Spec Part 14: conflict must be legible without relying on color alone -
+   this label carries an icon + the word "CONFLICT" in addition to the
+   red styling above, so it still reads correctly for color-blind users
+   or on a black/white printout. */
+.schedule-conflict-flag {
+  display: flex !important;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.64rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.03em;
+  color: #8c241c !important;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid #8c241c;
+  border-radius: 4px;
+  padding: 0 3px;
+  line-height: 1.3;
+  margin-bottom: 1px;
+}
+/* Higher specificity than the generic ".schedule-block span" rule above
+   (which also sets color!important) - without this, the flag's red
+   text would be silently overridden back to the block's default green. */
+.schedule-block .schedule-conflict-flag {
+  color: #8c241c !important;
+}
+
+/* Locked schedules already get a dashed outline from the inline page
+   style (scheduling.html) - nudge its shadow so it composes with the new
+   depth instead of a locked card looking flatter than a normal one. */
+.schedule-block.locked-schedule {
+  box-shadow: var(--card-shadow-resting) !important;
+}
+.schedule-block.locked-schedule.conflict {
+  box-shadow: var(--card-shadow-resting-conflict) !important;
+}
+
+/*
+   Adaptive content for short-duration schedules (spec Parts 12-13, 35):
+   each card is its own size container, so what it shows scales with its
+   own rendered height rather than a fixed breakpoint. Nothing here
+   changes --exact-height/top/left/width - only which text lines paint.
+   Falls back gracefully in browsers without container-query support:
+   every field still shows via the existing overflow/ellipsis handling
+   above, exactly as before this change.
+*/
+@container schedule-card (max-height: 46px) {
+  .schedule-block {
+    padding: 0.15rem 1.5rem 0.15rem 0.5rem;
+    gap: 0;
+  }
+  .schedule-block .schedule-subject-name,
+  .schedule-block .schedule-section,
+  .schedule-block .schedule-room,
+  .schedule-block .schedule-instructor,
+  .schedule-block .time-range,
+  .schedule-block .schedule-conflict-flag {
+    display: none;
+  }
+  .schedule-block .schedule-subject {
+    font-size: 0.82rem;
+  }
+}
+@container schedule-card (min-height: 46.01px) and (max-height: 80px) {
+  .schedule-block .schedule-subject-name,
+  .schedule-block .schedule-instructor {
+    display: none;
+  }
+}
+@container schedule-card (min-height: 80.01px) and (max-height: 108px) {
+  .schedule-block .schedule-subject-name {
+    display: none;
+  }
+}
+
+.schedule-delete-btn {
+  position: absolute;
+  top: 0.18rem;
+  right: 0.18rem;
+  width: 17px;
+  height: 17px;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--danger);
+  font-size: 0.46rem;
+  box-shadow: 0 2px 5px rgba(10, 53, 36, 0.18);
+  transition:
+    transform 120ms ease,
+    background 120ms ease,
+    opacity 150ms ease;
+}
+.schedule-delete-btn:hover {
+  background: var(--danger);
+  color: #fff;
+  transform: scale(1.12);
+}
+.schedule-delete-btn:focus-visible,
+.schedule-block .schedule-lock-btn:focus-visible,
+.schedule-block .schedule-details-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px rgba(28, 140, 87, 0.55) !important;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.legend-dot.normal {
+  background: var(--green-600);
+}
+.legend-dot.conflict {
+  background: var(--danger);
+}
+
+.archive-summary-card,
+.archive-card,
+.archive-view-toolbar {
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  border-radius: 12px;
+}
+.archive-card {
+  padding: 1rem;
+  box-shadow: var(--elevation-1);
+  transition:
+    transform var(--dur-base, 220ms) var(--ease-standard, ease),
+    box-shadow var(--dur-base, 220ms) var(--ease-standard, ease);
+}
+.archive-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--elevation-1-hover);
+}
+.archive-card-header,
+.archive-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.archive-actions {
+  justify-content: flex-end;
+  margin-top: 0.9rem;
+}
+
+.archive-view-matrix-wrapper {
+  width: 100%;
+  max-height: 64vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
+.archive-view-matrix {
+  min-width: 1080px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.archive-view-matrix thead th,
+.archive-view-matrix th.time-col {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--green-100);
+  color: var(--green-900);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  font-weight: 800;
+}
+.archive-view-matrix th.time-col {
+  left: 0;
+  z-index: 6;
+  width: 104px;
+  min-width: 104px;
+}
+.archive-view-matrix td {
+  height: var(--slot-height);
+  min-width: 120px;
+  padding: 0;
+  position: relative;
+  vertical-align: top;
+  background: #fff;
+  border-right: 1px solid var(--matrix-soft-line);
+  border-bottom: 1px solid var(--matrix-line);
+}
+.archive-view-block {
+  position: absolute;
+  top: 0;
+  left: calc(0.25rem + (var(--stack-index, 0) * 6px));
+  right: 0.25rem;
+  height: var(--exact-height);
+  min-height: var(--exact-height);
+  max-height: var(--exact-height);
+  z-index: 8;
+  overflow: hidden;
+  border-radius: 7px;
+  padding: 0.3rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.05rem;
+  text-align: center;
+  background: var(--green-100);
+  border: 1px solid var(--green-600);
+  color: var(--green-900);
+}
+
+@media (max-width: 991px) {
+  :root {
+    --slot-height: 40px;
+  }
+  .schedule-matrix {
+    min-width: 940px !important;
+  }
+  .schedule-matrix th.time-col {
+    width: 98px !important;
+    min-width: 98px !important;
+    max-width: 98px !important;
+  }
+}
+@media (max-width: 575px) {
+  :root {
+    --slot-height: 38px;
+  }
+  .schedule-matrix {
+    min-width: 860px !important;
+  }
+  .schedule-matrix th.time-col {
+    width: 90px !important;
+    min-width: 90px !important;
+    max-width: 90px !important;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Print sheet — unchanged black/white for reliable photocopying          */
+/* ---------------------------------------------------------------------- */
+@page {
+  size: A4 portrait;
+  margin: 4mm;
+}
+@media print {
+  :root {
+    --print-page-width: 202mm;
+    --print-table-height: 268mm;
+    --print-head-height: 7mm;
+    --print-slot-height: calc(
+      (var(--print-table-height) - var(--print-head-height)) / 28
+    );
+    --slot-height: var(--print-slot-height) !important;
+  }
+  html,
+  body {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #000 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body.printing-schedule * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  body.printing-schedule .sidebar-nav,
+  body.printing-schedule .sidebar-toggle-mobile,
+  body.printing-schedule .hero-card,
+  body.printing-schedule .metric-card,
+  body.printing-schedule .term-context-card,
+  body.printing-schedule main > section.glass-card:not(.schedule-matrix-card),
+  body.printing-schedule .schedule-list-panel,
+  body.printing-schedule .toast-container,
+  body.printing-schedule .btn,
+  body.printing-schedule .modal,
+  body.printing-schedule .legend-item,
+  body.printing-schedule .matrix-toolbar {
+    display: none !important;
+  }
+  body.printing-schedule .scheduling-shell,
+  body.printing-schedule main,
+  body.printing-schedule section,
+  body.printing-schedule .row,
+  body.printing-schedule .col-12 {
+    display: block !important;
+    width: var(--print-page-width) !important;
+    max-width: var(--print-page-width) !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+  /* .schedule-list-panel also carries .col-12 (for the grid layout on
+     screen), which the rule just above forces back to display: block at
+     equal specificity - the extra class here breaks that tie so this one
+     wins, keeping the panel actually hidden when printing (pre-existing gap:
+     .schedule-matrix-card already needed this same fix below, for the same
+     reason, before the Schedule List panel became collapsible). */
+  body.printing-schedule .col-12.schedule-list-panel {
+    display: none !important;
+  }
+  body.printing-schedule .schedule-matrix-card {
+    display: block !important;
+    width: var(--print-page-width) !important;
+    max-width: var(--print-page-width) !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: #fff !important;
+    overflow: visible !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  body.printing-schedule .matrix-print-heading {
+    display: block !important;
+    width: var(--print-page-width) !important;
+    height: 13mm !important;
+    padding: 0 0 1mm !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    background: #fff !important;
+    border: 0 !important;
+    page-break-after: avoid !important;
+  }
+  body.printing-schedule .matrix-school-name,
+  body.printing-schedule .matrix-title,
+  body.printing-schedule .matrix-section-line,
+  body.printing-schedule .matrix-term-line {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 0 1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+    line-height: 1.05 !important;
+  }
+  body.printing-schedule .matrix-school-name {
+    font-size: 8px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em !important;
+  }
+  body.printing-schedule .matrix-title {
+    font-size: 10px !important;
+    font-weight: 900 !important;
+  }
+  body.printing-schedule .matrix-section-line {
+    font-size: 9px !important;
+    font-weight: 900 !important;
+  }
+  body.printing-schedule .matrix-term-line {
+    font-size: 7px !important;
+    font-weight: 700 !important;
+  }
+  body.printing-schedule .schedule-matrix-wrapper {
+    display: block !important;
+    width: var(--print-page-width) !important;
+    height: var(--print-table-height) !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 2px solid #000 !important;
+    background: #d9d9d9 !important;
+    page-break-inside: avoid !important;
+  }
+  body.printing-schedule .schedule-matrix {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    background: #d9d9d9 !important;
+    font-size: 6px !important;
+    page-break-inside: avoid !important;
+  }
+  body.printing-schedule .schedule-matrix thead th:nth-child(8),
+  body.printing-schedule .schedule-matrix tbody td:nth-child(8) {
+    display: none !important;
+  }
+  body.printing-schedule .schedule-matrix thead tr {
+    height: var(--print-head-height) !important;
+  }
+  body.printing-schedule .schedule-matrix tbody tr {
+    height: var(--print-slot-height) !important;
+    max-height: var(--print-slot-height) !important;
+  }
+  body.printing-schedule .schedule-matrix thead th,
+  body.printing-schedule .schedule-matrix th.time-col {
+    position: static !important;
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
+    padding: 0 2px !important;
+    font-size: 7px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+  }
+  body.printing-schedule .schedule-matrix th.time-col {
+    width: 24mm !important;
+    min-width: 24mm !important;
+    max-width: 24mm !important;
+  }
+  body.printing-schedule .schedule-matrix tbody th.time-col {
+    height: var(--print-slot-height) !important;
+    font-size: 6.8px !important;
+    font-weight: 800 !important;
+  }
+  body.printing-schedule .schedule-matrix td {
+    height: var(--print-slot-height) !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    vertical-align: top !important;
+    border: 1px solid #fff !important;
+    background: #d9d9d9 !important;
+  }
+  body.printing-schedule .schedule-block {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: var(--exact-height) !important;
+    min-height: var(--exact-height) !important;
+    max-height: var(--exact-height) !important;
+    border: 1.3px solid #000 !important;
+    background: #fff !important;
+    color: #000 !important;
+    padding: 1px 2px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    text-align: center !important;
+    page-break-inside: avoid !important;
+  }
+  body.printing-schedule .schedule-block strong,
+  body.printing-schedule .schedule-block span {
+    display: block !important;
+    color: #000 !important;
+    font-size: 6.4px !important;
+    line-height: 1.08 !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-transform: uppercase !important;
+  }
+  body.printing-schedule .schedule-block .schedule-section,
+  body.printing-schedule .schedule-block .time-range,
+  body.printing-schedule .schedule-block .schedule-subject-name,
+  body.printing-schedule .schedule-conflict-flag,
+  body.printing-schedule .schedule-delete-btn {
+    display: none !important;
+  }
+  /* Screen-only card depth/interaction must never reach the printed sheet:
+   strip the sheen/spine pseudo-elements this redesign added, and close a
+   pre-existing gap where the Lock/Details corner buttons (unlike Delete)
+   weren't in the print hide-list, so print output is unaffected either
+   way this change lands. */
+  body.printing-schedule .schedule-block::before,
+  body.printing-schedule .schedule-block::after {
+    display: none !important;
+    content: none !important;
+  }
+  body.printing-schedule .schedule-block .schedule-lock-btn,
+  body.printing-schedule .schedule-block .schedule-details-btn {
+    display: none !important;
+  }
+  body.printing-schedule .print-matrix-summary {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 2mm !important;
+    width: var(--print-page-width) !important;
+    max-width: var(--print-page-width) !important;
+    margin: 2mm auto 0 !important;
+    padding: 2mm !important;
+    border: 1px solid #000 !important;
+    background: #fff !important;
+    page-break-inside: avoid !important;
+  }
+  body.printing-schedule .print-matrix-summary h3 {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1mm !important;
+    margin: 0 0 1mm !important;
+    font-size: 7px !important;
+    font-weight: 900 !important;
+    color: #000 !important;
+    text-transform: uppercase !important;
+  }
+  body.printing-schedule .print-matrix-summary h3 i {
+    color: #000 !important;
+    font-size: 6.5px !important;
+  }
+  body.printing-schedule .print-instructor-grid,
+  body.printing-schedule .print-room-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0.6mm !important;
+  }
+  body.printing-schedule .print-instructor-item,
+  body.printing-schedule .print-room-item {
+    border: 1px solid #000 !important;
+    border-left: 1px solid #000 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    padding: 0.6mm 1mm !important;
+    font-size: 5.6px !important;
+    line-height: 1.2 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  body.printing-schedule .print-instructor-item strong,
+  body.printing-schedule .print-room-item strong {
+    font-size: 5.6px !important;
+    color: #000 !important;
+  }
+}
+
+/* Guided scheduling workflow */
+#scheduleForm .form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+#scheduleForm .form-text {
+  min-height: 1.25rem;
+}
+#autoGenProgress .progress {
+  background: var(--bs-secondary-bg);
+}
+/* Auto-Generate: step-by-step processing panel */
+#autoGenProgress.ag-steps-card {
+  border: 1px solid var(--border, #dceee3);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+  padding: 16px 18px 14px;
+}
+.ag-steps-head {
+  font-weight: 700;
+  color: var(--dark, #101b15);
+  margin-bottom: 12px;
+}
+.ag-steps { list-style: none; margin: 0; padding: 0; }
+.ag-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 14px;
+}
+.ag-step:last-child { padding-bottom: 6px; }
+.ag-step::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 28px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--border, #dceee3);
+}
+.ag-step:last-child::before { display: none; }
+.ag-step.is-done::before { background: var(--primary, #146c43); }
+.ag-step-dot {
+  position: relative;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: .78rem;
+  font-weight: 700;
+  background: var(--surface-soft, #f6fbf8);
+  border: 2px solid var(--border, #dceee3);
+  color: var(--muted, #6b786f);
+  z-index: 1;
+}
+.ag-step-check { display: none; font-size: .7rem; }
+.ag-step.is-active .ag-step-dot {
+  background: var(--primary, #146c43);
+  border-color: var(--primary, #146c43);
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--primary-soft, #e1f5ea);
+}
+.ag-step.is-done .ag-step-dot {
+  background: var(--primary, #146c43);
+  border-color: var(--primary, #146c43);
+  color: #fff;
+}
+.ag-step.is-done .ag-step-num,
+.ag-step.is-error .ag-step-num { display: none; }
+.ag-step.is-done .ag-step-check { display: block; }
+.ag-step.is-error .ag-step-dot {
+  background: var(--danger, #b3261e);
+  border-color: var(--danger, #b3261e);
+  color: #fff;
+}
+.ag-step-body { flex: 1 1 auto; min-width: 0; }
+.ag-step-title { font-weight: 600; color: var(--dark, #101b15); line-height: 1.3; }
+.ag-step.is-pending .ag-step-title { color: var(--muted, #6b786f); }
+.ag-step-desc { font-size: .82rem; color: var(--muted, #6b786f); margin-top: 2px; }
+.ag-step-result {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--primary, #146c43);
+  margin-top: 2px;
+}
+.ag-step-result:empty { display: none; }
+.ag-step.is-error .ag-step-result { color: var(--danger, #b3261e); }
+.ag-step-meta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .8rem;
+  color: var(--muted, #6b786f);
+  white-space: nowrap;
+}
+.ag-step-state { min-width: 16px; text-align: right; }
+.ag-step.is-done .ag-step-state { color: var(--primary, #146c43); }
+.ag-step.is-error .ag-step-state { color: var(--danger, #b3261e); font-weight: 600; }
+.ag-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--primary-soft, #e1f5ea);
+  border-top-color: var(--primary, #146c43);
+  border-radius: 50%;
+  animation: ag-spin .8s linear infinite;
+  vertical-align: middle;
+}
+@keyframes ag-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .ag-spinner { animation-duration: 2.4s; }
+}
+.ag-steps-foot {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft, #eaf5ef);
+}
+@media (max-width: 575.98px) {
+  .ag-step-meta { flex-direction: column; align-items: flex-end; gap: 2px; }
+}
+#autoGenResults .alert {
+  border-left-width: 4px;
+}
+#autoGenResults .alt-instructor-select {
+  min-width: 0;
+}
+
+.schedule-create-dialog {
+  height: calc(100vh - 1rem);
+  max-height: calc(100vh - 1rem);
+  margin: 0.5rem auto;
+}
+.schedule-create-modal {
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.schedule-create-modal > .modal-header {
+  flex: 0 0 auto;
+}
+.schedule-create-modal > form {
+  min-height: 0;
+  height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.schedule-create-modal > form > .modal-body {
+  min-height: 0;
+  height: auto;
+  flex: 1 1 auto;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  background: linear-gradient(180deg, #fff 0%, #fbfefc 100%);
+}
+.schedule-create-modal > form > .modal-footer {
+  flex: 0 0 auto;
+  background: #fff;
+}
+
+.schedule-mode-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  box-shadow: var(--elevation-1);
+}
+.schedule-mode-buttons .btn {
+  font-weight: 800;
+}
+.schedule-step {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--elevation-1);
+}
+.schedule-step-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+.schedule-step-number {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--green-100);
+  border: 1px solid var(--green-200);
+  color: var(--green-800);
+  font-weight: 900;
+}
+.schedule-step-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--green-900);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.schedule-step-help {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.08rem;
+}
+.schedule-smart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--green-200);
+  border-radius: 12px;
+  background: var(--green-50);
+}
+.schedule-required-type {
+  font-weight: 800;
+  color: var(--green-900);
+  margin-top: 0.15rem;
+}
+.schedule-assignment-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+.schedule-assignment-status.valid {
+  border-color: var(--green-200);
+  background: var(--green-50);
+  color: var(--green-800);
+}
+.schedule-assignment-status.warning {
+  border-color: #ead9a6;
+  background: #fffaf0;
+  color: #6d5815;
+}
+.schedule-assignment-status.danger {
+  border-color: #f0b8b8;
+  background: #fdf0f0;
+  color: #9b1c1c;
+}
+html[data-theme="dark"] .schedule-assignment-status.danger {
+  border-color: #7a2e2e;
+  background: #3a1d1d;
+  color: #ffb4b4;
+}
+.schedule-assignment-status.pending {
+  color: var(--muted);
+}
+.schedule-live-check {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  padding: 0.85rem;
+}
+.schedule-live-check-title {
+  font-weight: 800;
+  color: var(--green-900);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.6rem;
+}
+.schedule-check-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.schedule-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--border-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.schedule-check-item.valid {
+  color: var(--green-800);
+  border-color: var(--green-200);
+  background: var(--green-50);
+}
+.schedule-check-item i {
+  margin-top: 0.08rem;
+}
+.schedule-summary-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.8rem;
+}
+.schedule-summary-title {
+  font-weight: 800;
+  color: var(--green-900);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.6rem;
+}
+.schedule-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+.schedule-summary-grid > div {
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+.schedule-summary-grid span {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.schedule-summary-grid strong {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.78rem;
+  color: var(--dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.schedule-recommendation-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.55rem;
+}
+.schedule-result-count {
+  background: var(--green-100);
+  color: var(--green-800);
+  border: 1px solid var(--green-200);
+}
+.schedule-recommendation-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 0.55rem;
+  background: #fff;
+  box-shadow: var(--elevation-1);
+}
+.schedule-recommendation-card.is-best {
+  border: 1.5px solid var(--green-600);
+  background: linear-gradient(135deg, #fff 0%, var(--green-50) 100%);
+  box-shadow: var(--elevation-2);
+}
+.schedule-recommendation-rank {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: var(--green-700);
+  min-width: 42px;
+  text-align: center;
+}
+.schedule-recommendation-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--green-900);
+  font-size: 0.86rem;
+}
+.schedule-recommendation-title span {
+  color: var(--muted);
+  font-weight: 600;
+}
+.schedule-recommendation-meta {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.18rem;
+}
+.schedule-recommendation-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+  margin-top: 0.42rem;
+}
+.schedule-recommendation-reasons span {
+  font-size: 0.64rem;
+  color: var(--green-800);
+  font-weight: 700;
+}
+.schedule-recommendation-reasons i {
+  margin-right: 0.2rem;
+}
+.schedule-recommendation-action {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.schedule-match {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--green-800);
+  font-size: 0.95rem;
+  text-align: center;
+  line-height: 1;
+}
+.schedule-match small {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.56rem;
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 0.15rem;
+}
+.schedule-no-result {
+  padding: 0.85rem;
+  border: 1px dashed #d7c987;
+  border-radius: 11px;
+  background: #fffaf0;
+}
+.schedule-no-result-title {
+  font-weight: 800;
+  color: #6d5815;
+  font-size: 0.8rem;
+}
+#scheduleForm .form-select:focus,
+#scheduleForm button:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+@media (max-width: 767px) {
+  .schedule-create-dialog {
+    margin: 0.5rem;
+    width: auto;
+    height: calc(100vh - 1rem);
+    max-height: calc(100vh - 1rem);
+  }
+  .schedule-create-modal {
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .schedule-mode-switch,
+  .schedule-smart-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .schedule-mode-buttons {
+    width: 100%;
+  }
+  .schedule-mode-buttons .btn {
+    flex: 1;
+  }
+  .schedule-check-grid,
+  .schedule-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .schedule-recommendation-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .schedule-recommendation-action {
+    grid-column: 2;
+    justify-content: space-between;
+  }
+}
+
+/* ==========================================================================
+   Centered notification modal (spec Parts 15-22)
+   #centeredNotificationModal (markup in pages/scheduling.html) already
+   uses Bootstrap's modal-dialog-centered + a static/keyboard-aware
+   backdrop for severities that require acknowledgement (see
+   js/scheduling/ui/notifications.js). This block only tunes sizing/type so
+   it reads as a moderate, professional dialog rather than inheriting
+   Bootstrap's bare defaults — centered, comfortably sized (420–600px),
+   never full-screen, never tiny, and legible without feeling oversized.
+   ========================================================================== */
+#centeredNotificationModal .modal-dialog {
+  max-width: 520px; /* within the spec's 420–600px target range */
+  width: 100%;
+}
+
+#centeredNotificationModal .modal-content {
+  padding: 0.25rem 0.25rem 0.5rem;
+}
+
+#centeredNotificationModal .modal-header {
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem 0.5rem;
+}
+
+/* Title: prominent but not shouting — spec Part 17's 1.15–1.35rem range. */
+#centeredNotificationModal .modal-title {
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+#centeredNotificationModal #centeredNotificationIcon .fas {
+  font-size: 1.1rem;
+}
+
+#centeredNotificationModal .modal-body {
+  padding: 0.5rem 1.5rem 1rem;
+}
+
+/* Main message: comfortable reading size, spec Part 17's 0.95–1.05rem. */
+#centeredNotificationModal #centeredNotificationMessage {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-body, #2b2f33);
+}
+
+/* Details bullet list: readable but a step down from the main message,
+   spec Part 17's 0.9–0.95rem — deliberately NOT Bootstrap's .small
+   (0.875rem), which read a touch cramped for a list someone is meant
+   to actually read rather than skim. */
+#centeredNotificationModal #centeredNotificationDetails {
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+#centeredNotificationModal #centeredNotificationDetails li {
+  margin-bottom: 0.2rem;
+}
+
+#centeredNotificationModal .modal-footer {
+  padding: 0.5rem 1.5rem 1.25rem;
+  gap: 0.5rem;
+}
+
+/* Comfortable click/tap target (spec Part 17) without being oversized. */
+#centeredNotificationModal .modal-footer .btn {
+  min-height: 2.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Keep keyboard-focus visibly distinct — Part 22 accessibility: focus
+   management/backdrop behavior is Bootstrap's own (untouched); this only
+   makes sure the resulting focus ring reads clearly against the flat
+   background used above. */
+#centeredNotificationModal .btn:focus-visible,
+#centeredNotificationModal .btn-close:focus-visible {
+  outline: 2px solid var(--primary, #146c43);
+  outline-offset: 2px;
+}
+
+/* Responsive (spec Part 21): never touches the screen edges, never
+   forces horizontal scroll, same breakpoint convention as the rest of
+   this file (575px). */
+@media (max-width: 575px) {
+  #centeredNotificationModal .modal-dialog {
+    width: calc(100% - 2rem);
+    max-width: calc(100% - 2rem);
+    margin: 1.5rem auto;
+  }
+
+  #centeredNotificationModal .modal-header,
+  #centeredNotificationModal .modal-body,
+  #centeredNotificationModal .modal-footer {
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+  }
+
+  #centeredNotificationModal .modal-title {
+    font-size: 1.15rem;
+  }
+
+  #centeredNotificationModal .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  #centeredNotificationModal .modal-footer .btn {
+    width: 100%;
+  }
+}

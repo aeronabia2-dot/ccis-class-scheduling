@@ -1,0 +1,396 @@
+/* ==========================================================================
+   Shared page shell — command bar, status strip, filter bar, modal polish.
+   Loaded by the pages brought onto the shared design language (plus a
+   light pass on dashboard.html), including instructors.html and
+   load_summary.html. Deliberately NOT loaded by scheduling.html, which
+   has its own, more elaborate version of this pattern
+   (scheduling-layout.css) and is left untouched.
+
+   Reuses the tokens already defined in css/core/style.css
+   (--green-*, --border, --surface-soft, --muted, --elevation-*) rather than
+   inventing new ones, exactly like scheduling-layout.css does.
+
+   Sections
+     1. Shell + tokens
+     2. Command bar
+     3. Action menus
+     4. Status strip
+     5. Filter bar + chips
+     6. Modal polish (shared header/footer/corners)
+     7. Responsive
+   ========================================================================== */
+
+/* 1. Shell + tokens ---------------------------------------------------------- */
+/* Fluid scaling, same behaviour as the dashboard: every rem-based size on
+   these pages (Bootstrap, buttons, tables, pg-*) grows and shrinks with the
+   viewport, so zooming out stretches the layout instead of leaving it tiny. */
+html:has(.pg-shell) {
+  font-size: clamp(15px, 0.5vw + 8px, 23px);
+}
+
+.pg-shell {
+  --pg-gap: 1rem;
+  --pg-radius: 14px;
+  --pg-field-h: 38px;
+  --pg-line: var(--border, #dceee3);
+  --pg-soft: var(--surface-soft, #f6fbf8);
+  --pg-muted: var(--muted, #6b786f);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pg-gap);
+  /* full-width canvas with breathing room on every side (matches .dash) */
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: clamp(20px, 2.2vw, 56px);
+}
+
+.pg-shell > * {
+  margin-bottom: 0 !important; /* spacing comes from the flex gap only */
+}
+
+/* 2. Command bar -------------------------------------------------------------- */
+.pg-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 0.85rem 1.25rem;
+  background: #fff;
+  border: 1px solid var(--pg-line);
+  border-left: 5px solid var(--green-700, #146c43);
+  border-radius: var(--pg-radius);
+  box-shadow: var(--elevation-1, 0 1px 3px rgba(0, 0, 0, 0.06));
+}
+
+.pg-title-block {
+  display: flex;
+  flex: 1 1 280px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.85rem;
+  min-width: 0;
+}
+
+.pg-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.pg-title-icon {
+  color: var(--green-700, #146c43);
+  font-size: 1.05rem;
+  margin-right: 0.15rem;
+}
+
+.pg-subtitle {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--pg-muted);
+}
+
+.pg-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pg-actions .btn {
+  height: var(--pg-field-h);
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.pg-primary {
+  padding-inline: 1.25rem;
+}
+
+/* 3. Action menus -------------------------------------------------------------- */
+.pg-menu {
+  min-width: 260px;
+  padding: 0.4rem;
+  border: 1px solid var(--pg-line);
+  border-radius: 12px;
+  box-shadow: var(--elevation-3, 0 10px 30px rgba(0, 0, 0, 0.12));
+}
+
+.pg-menu .dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  white-space: normal;
+}
+
+.pg-menu .dropdown-item > i {
+  width: 1.1rem;
+  margin-top: 0.2rem;
+  text-align: center;
+}
+
+/* 4. Status strip --------------------------------------------------------------- */
+.pg-stats {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.6rem;
+  background: #fff;
+  border: 1px solid var(--pg-line);
+  border-radius: var(--pg-radius);
+  scrollbar-width: thin;
+}
+
+.pg-stat {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.85rem;
+  min-width: 0;
+  border-right: 1px solid var(--pg-line);
+}
+
+.pg-stat:last-child {
+  border-right: 0;
+}
+
+.pg-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  font-size: 0.85rem;
+  border-radius: 9px;
+}
+
+.pg-tone-primary { background: #dbeafe; color: #1d4ed8; }
+.pg-tone-success { background: #d1e7dd; color: #146c43; }
+.pg-tone-info    { background: #cff4fc; color: #087990; }
+.pg-tone-warning { background: #fff3cd; color: #8a6d1b; }
+.pg-tone-danger  { background: #f8d7da; color: #b02a37; }
+
+.pg-stat-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-stat-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--pg-muted);
+  white-space: nowrap;
+}
+
+/* 5. Filter bar + chips ----------------------------------------------------------- */
+.pg-filters {
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid var(--pg-line);
+  border-radius: var(--pg-radius);
+}
+
+.pg-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.pg-filter-row-more {
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 1px dashed var(--pg-line);
+}
+
+.pg-field {
+  position: relative;
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+.pg-field-search {
+  flex: 2 1 200px;
+  align-self: flex-end;
+}
+
+.pg-field-wide {
+  flex: 2 1 220px;
+}
+
+.pg-field-search .form-control {
+  padding-left: 2.1rem;
+}
+
+.pg-field-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--pg-muted);
+  pointer-events: none;
+}
+
+.pg-label {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pg-muted);
+}
+
+.pg-filters .form-control,
+.pg-filters .form-select {
+  height: var(--pg-field-h);
+  font-size: 0.88rem;
+}
+
+.pg-filter-buttons {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+}
+
+.pg-filter-buttons .btn {
+  height: var(--pg-field-h);
+}
+
+.pg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pg-chips:not(:empty) {
+  margin-top: 0.65rem;
+}
+
+.pg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--green-800, #0f4a31);
+  background: var(--green-100, #e1f5ea);
+  border: 1px solid var(--green-200, #bfe7d2);
+  border-radius: 999px;
+}
+
+.pg-chip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 0.65rem;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.pg-chip button:hover {
+  background: var(--green-200, #bfe7d2);
+}
+
+/* 6. Modal polish (shared header/footer/corners) -------------------------------- */
+/* Applies to every modal on a page that loads this stylesheet, the same way
+   scheduling-layout.css's modal rules apply page-wide rather than being
+   listed modal-by-modal (this file is only ever loaded on pages being
+   brought onto the shared pattern, so a page-wide selector is safe here). */
+.modal .modal-content {
+  border: 0;
+  border-radius: 16px;
+  box-shadow: var(--elevation-4, 0 24px 60px rgba(0, 0, 0, 0.25));
+}
+
+.modal .modal-header {
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--pg-line, var(--border, #dceee3)) !important;
+}
+
+.modal .modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.modal .modal-footer {
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  background: var(--pg-soft, var(--surface-soft, #f6fbf8));
+  border-top: 1px solid var(--pg-line, var(--border, #dceee3)) !important;
+  border-radius: 0 0 16px 16px;
+}
+
+.modal .modal-footer .btn {
+  min-width: 110px;
+  font-weight: 600;
+}
+
+/* 7. Responsive ------------------------------------------------------------------ */
+@media (max-width: 991.98px) {
+  .pg-shell {
+    padding: 76px 16px 28px;
+  }
+
+  .pg-actions {
+    width: 100%;
+  }
+
+  .pg-primary {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .pg-topbar {
+    padding: 0.75rem;
+  }
+
+  .pg-title {
+    font-size: 1.15rem;
+  }
+
+  .pg-field {
+    flex: 1 1 calc(50% - 0.3rem);
+  }
+
+  .pg-field-search {
+    flex: 1 1 100%;
+  }
+
+  .pg-subtitle {
+    display: none;
+  }
+
+  .pg-filter-buttons {
+    width: 100%;
+  }
+
+  .pg-filter-buttons .btn {
+    flex: 1 1 auto;
+  }
+}

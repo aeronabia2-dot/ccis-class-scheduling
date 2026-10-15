@@ -1,0 +1,62 @@
+/* Instructors page - Teaching load dropdown + on-screen Teaching Load Form viewer.
+   Markup: js/instructors/ui.js (renderTeachingLoadDropdown) and
+   js/instructors/teaching-load/teaching-load-forms-view.js. */
+
+/* The icon button keeps its 34px height but grows to fit the dropdown caret. */
+.tl-dropdown > .tl-dropdown-toggle {
+    width: auto;
+    min-width: 34px;
+    padding: 0 0.5rem;
+    gap: 0.3rem;
+}
+.tl-dropdown > .tl-dropdown-toggle::after { margin-left: 0; }
+.tl-dropdown-menu { min-width: 12.5rem; font-size: 0.9rem; }
+.tl-dropdown-menu .dropdown-header { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.tl-dropdown-menu .dropdown-item { display: flex; align-items: center; }
+
+/* ---- viewer ---- */
+.tlv-tabs .nav-link { font-weight: 600; }
+.tlv-tabs .tlv-tab-empty { opacity: 0.65; }
+
+.tlv-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 1rem; align-items: start; }
+@media (max-width: 991.98px) { .tlv-layout { grid-template-columns: 1fr; } }
+.tlv-grid-wrap { overflow-x: auto; }
+
+.tlv-grid { width: 100%; min-width: 640px; border-collapse: collapse; table-layout: fixed; font-size: 0.74rem; }
+.tlv-grid th, .tlv-grid td { border: 1px solid var(--bs-border-color, #cfd6dd); padding: 0; text-align: center; }
+.tlv-grid thead th { padding: 0.35rem 0.25rem; background: var(--bs-tertiary-bg, #f1f3f5); font-weight: 700; }
+.tlv-grid th.tlv-time { width: 66px; font-weight: 600; color: var(--bs-secondary-color, #6c757d); font-size: 0.68rem; }
+.tlv-grid tbody th.tlv-time { background: var(--bs-tertiary-bg, #f1f3f5); height: 22px; }
+.tlv-grid tbody th.tlv-time-half { font-weight: 400; opacity: 0.7; }
+.tlv-grid tr.tlv-row-hour td, .tlv-grid tr.tlv-row-hour th { border-top-color: var(--bs-secondary-color, #98a2ab); }
+
+/* Blue blocks exactly like the form (#00B0F0, black bold text). */
+.tlv-grid td.tlv-class, .tlv-grid td.tlv-filler, .tlv-grid td.tlv-free {
+    background: #00b0f0; color: #000; font-weight: 700; padding: 0.15rem 0.25rem; line-height: 1.2; vertical-align: middle;
+}
+.tlv-grid td.tlv-marker { background: transparent; color: var(--bs-body-color, #212529); font-weight: 700; vertical-align: middle; border: 1px solid var(--bs-body-color, #212529); }
+.tlv-grid td.tlv-lunch {
+    font-weight: 700; letter-spacing: 0.1em; font-size: 0.8rem; vertical-align: middle;
+    border: 2px solid var(--bs-body-color, #212529); background: transparent;
+}
+
+.tlv-legend { margin-top: 0.5rem; font-size: 0.75rem; color: var(--bs-secondary-color, #6c757d); }
+.tlv-swatch { display: inline-block; width: 12px; height: 12px; vertical-align: -2px; margin-right: 0.35rem; }
+.tlv-swatch.tlv-marker { border: 1px solid var(--bs-body-color, #212529); }
+
+/* ---- side panel ---- */
+.tlv-side { font-size: 0.82rem; }
+.tlv-list { width: 100%; border-collapse: collapse; margin-bottom: 0.9rem; }
+.tlv-list th { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--bs-secondary-color, #6c757d); padding: 0.3rem 0.35rem; border-bottom: 2px solid var(--bs-border-color, #cfd6dd); }
+.tlv-list td { padding: 0.3rem 0.35rem; border-bottom: 1px solid var(--bs-border-color, #dee2e6); vertical-align: top; }
+.tlv-list tr.tlv-list-head td { background: var(--bs-tertiary-bg, #f1f3f5); font-weight: 700; padding: 0.25rem 0.35rem; }
+.tlv-muted { color: var(--bs-secondary-color, #6c757d); font-size: 0.78rem; }
+
+.tlv-sum { border: 1px solid var(--bs-border-color, #dee2e6); border-radius: 8px; padding: 0.6rem 0.75rem; margin-bottom: 0.75rem; }
+.tlv-sum h6 { font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--bs-secondary-color, #6c757d); margin-bottom: 0.4rem; }
+.tlv-sum-line { display: flex; justify-content: space-between; padding: 0.12rem 0; }
+.tlv-sum-total { border-top: 1px solid var(--bs-border-color, #dee2e6); margin-top: 0.3rem; padding-top: 0.35rem; font-size: 0.9rem; }
+
+.tlv-empty-state { text-align: center; padding: 3rem 1rem; color: var(--bs-secondary-color, #6c757d); }
+.tlv-empty-state i { font-size: 2rem; margin-bottom: 0.75rem; display: block; opacity: 0.6; }
+.tlv-empty-state p { max-width: 520px; margin: 0 auto; }

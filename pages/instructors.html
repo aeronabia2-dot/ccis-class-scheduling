@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="../js/core/auth-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructors | CCIS Scheduling System</title>
+
+    <link href="../vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="../vendor/fontawesome/css/all.min.css" rel="stylesheet">
+
+    <link href="../css/core/style.css" rel="stylesheet">
+    <link href="../css/core/page-shell.css" rel="stylesheet">
+    <link href="../css/core/data-pages.css" rel="stylesheet">
+    <link href="../css/instructors/instructors-filters.css" rel="stylesheet">
+    <link href="../css/instructors/faculty-matrix.css" rel="stylesheet">
+    <link href="../css/instructors/teaching-load-view.css" rel="stylesheet">
+
+    <style>
+        .ms-dropdown { position: relative; }
+        .ms-dropdown-toggle {
+            width: 100%; display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; background: #fff; text-align: left;
+        }
+        .ms-dropdown-toggle.is-open { border-color: #146c43; box-shadow: 0 0 0 .2rem rgba(20,108,67,.15); }
+        /* Bootstrap 5 ships its own ".placeholder" (loading-skeleton: grey block,
+           wait cursor). Reset it so the dropdown labels below render as text. */
+        .ms-dropdown-toggle span.placeholder {
+            color: #6c757d; display: inline; min-height: 0; background: none;
+            opacity: 1; cursor: pointer; animation: none;
+        }
+        .ms-dropdown-item.is-active { background: #146c43; color: #fff; }
+        .ms-dropdown-toggle::after {
+            content: "\f078"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            font-size: .7rem; color: #6c757d; margin-left: 8px; flex: 0 0 auto;
+        }
+        .ms-dropdown-toggle span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ms-dropdown-panel {
+            position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1055;
+            background: #fff; border: 1px solid #dee2e6; border-radius: .6rem;
+            box-shadow: 0 .6rem 1.4rem rgba(0,0,0,.16); overflow: hidden;
+        }
+        .ms-dropdown-search-wrap { padding: .5rem; border-bottom: 1px solid #eee; }
+        .ms-dropdown-list { max-height: 260px; overflow-y: auto; padding: .25rem 0; }
+        .ms-dropdown-item {
+            display: flex; align-items: center; gap: .6rem; padding: .5rem .9rem;
+            cursor: pointer; font-size: .88rem; margin: 0; color: #212529;
+        }
+        .ms-dropdown-item:hover { background: #146c43; color: #fff; }
+        .ms-dropdown-item input[type=checkbox] { pointer-events: none; flex: 0 0 auto; }
+        .ms-dropdown-empty { padding: .75rem .9rem; color: #6c757d; font-size: .85rem; }
+
+        .wizard-step-dot {
+            width: 26px; height: 26px; border-radius: 50%; display: inline-flex;
+            align-items: center; justify-content: center; font-size: .8rem;
+            background: #e9ecef; color: #6c757d; flex: 0 0 auto;
+        }
+        .wizard-step-dot.active { background: #146c43; color: #fff; }
+        .wizard-step-dot.done { background: #146c43; color: #fff; opacity: .6; }
+        .wizard-step-line { flex: 1 1 auto; height: 2px; background: #e9ecef; min-width: 24px; }
+        #sectionChecklistList { max-height: 240px; overflow-y: auto; }
+        #sectionChecklistList .ms-dropdown-item { display: flex; align-items: center; gap: .6rem; }
+        #sectionChecklistList .ms-dropdown-item input[type=checkbox] { pointer-events: auto; }
+        .teaching-load-card { background: #f8f9fa; }
+        .is-invalid ~ .invalid-feedback, .invalid-feedback:not(:empty) { display: block; }
+    </style>
+    <link rel="manifest" href="../manifest.webmanifest">
+    <meta name="theme-color" content="#146C43">
+    <link rel="icon" type="image/png" sizes="192x192" href="../images/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="../images/icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="CCIS Scheduling">
+    <link rel="stylesheet" href="../css/core/notifications.css">
+    <link rel="stylesheet" href="../css/core/responsive.css">
+</head>
+
+<body>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="notificationToast" class="toast align-items-center border-0 ntf-success" role="status" aria-live="polite" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-circle-check me-2" id="toastIcon"></i>
+                    <span id="toastMessage">Ready.</span>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+    <button class="sidebar-toggle-mobile" id="sidebarToggle" type="button" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <aside class="sidebar-nav" id="sidebarNav">
+        <a class="sidebar-brand" href="../dashboard.html">
+            <span class="brand-mark"><i class="fas fa-calendar-days"></i></span>
+            <span>CCIS Scheduling</span>
+        </a>
+
+        <nav class="sidebar-links">
+                <a class="sidebar-link" href="../dashboard.html"><i class="fas fa-house"></i><span>Dashboard</span></a>
+                <a class="sidebar-link" href="scheduling.html"><i class="fas fa-calendar-check"></i><span>Scheduling</span></a>
+                <a class="sidebar-link" href="classrooms.html"><i class="fas fa-building"></i><span>Rooms</span></a>
+                <a class="sidebar-link active" href="instructors.html"><i class="fas fa-user-tie"></i><span>Instructors</span></a>
+                <a class="sidebar-link" href="subjects.html"><i class="fas fa-book"></i><span>Subjects</span></a>
+                <a class="sidebar-link" href="curriculum.html"><i class="fas fa-list-check"></i><span>Curriculum</span></a>
+                <a class="sidebar-link" href="class_sections.html"><i class="fas fa-users"></i><span>Sections</span></a>
+                <a class="sidebar-link" href="schedule_archives.html"><i class="fas fa-box-archive"></i><span>Archives</span></a>
+                <a class="sidebar-link" href="load_summary.html"><i class="fas fa-table-list"></i><span>Summary of Load</span></a>
+                <a class="sidebar-link" href="user_management.html"><i class="fas fa-user-gear"></i><span>User Management</span></a>
+                <a class="sidebar-link" href="activity_log.html"><i class="fas fa-clock-rotate-left"></i><span>Activity Log</span></a>
+        </nav>
+
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <span class="sidebar-user-avatar"><i class="fas fa-user"></i></span>
+                    <div class="sidebar-user-meta">
+                        <span class="sidebar-user-name" data-current-user-name>—</span>
+                        <span class="sidebar-user-role" data-current-user-role>—</span>
+                    </div>
+                </div>
+                <button type="button" class="sidebar-logout" data-logout>
+                    <i class="fas fa-right-from-bracket"></i><span>Log Out</span>
+                </button>
+            </div>
+    </aside>
+
+    <div class="app-main">
+
+    <main class="container-fluid instructors-shell pg-shell">
+        <!-- ============================================================
+             COMMAND BAR
+             ============================================================ -->
+        <header class="pg-topbar" aria-label="Instructor actions">
+            <div class="pg-title-block">
+                <h1 class="pg-title"><i class="fas fa-user-tie pg-title-icon"></i>Instructors</h1>
+                <p class="pg-subtitle">Add, update, search, and manage instructors used in the CCIS scheduling system.</p>
+            </div>
+            <div class="pg-actions">
+                <button class="btn btn-outline-secondary" id="btnOpenFacultyMatrix" type="button" title="Open the Faculty Schedule Matrix: every instructor's classes for one day">
+                    <i class="fas fa-table-cells me-2"></i>Faculty Schedule
+                </button>
+                <button class="btn btn-outline-secondary" id="btnOpenTeachingLoadSettings" type="button" title="Set the Dean/VP/President signatories printed on every instructor's Teaching Load Form export">
+                    <i class="fas fa-stamp me-2"></i>Teaching Load Settings
+                </button>
+                <button class="btn btn-primary-modern text-white pg-primary" id="btnOpenInstructorModal" type="button">
+                    <i class="fas fa-plus me-2"></i>Add Instructor
+                </button>
+            </div>
+        </header>
+
+        <!-- Shown once per page load when the shared Teaching Load Settings
+             row (Dean/VP/President signatories) has never been filled in -
+             every export would otherwise print those signature blocks blank
+             with no other indication why. Dismissible for this visit only;
+             it reappears next load until Settings is actually saved. -->
+        <div class="alert alert-warning d-none align-items-center justify-content-between py-2 px-3 mb-3" id="teachingLoadSettingsBanner" role="alert">
+            <span><i class="fas fa-triangle-exclamation me-2"></i>Teaching Load signatories (Dean, VPs, President) haven't been set yet - every Teaching Load Form export will print those signature blocks blank.</span>
+            <span class="text-nowrap ms-3">
+                <button type="button" class="btn btn-sm btn-warning" id="btnBannerOpenTeachingLoadSettings">Set them now</button>
+                <button type="button" class="btn-close ms-2" aria-label="Dismiss" id="btnDismissTeachingLoadSettingsBanner"></button>
+            </span>
+        </div>
+
+
+        <!-- ============================================================
+             STATUS STRIP
+             ============================================================ -->
+        <section class="pg-stats" aria-label="Instructor summary">
+            <div class="pg-stat"><span class="pg-stat-icon pg-tone-warning"><i class="fas fa-user-tie"></i></span><div><div class="pg-stat-value" id="metricTotalInstructors">0</div><div class="pg-stat-label">Instructors</div></div></div>
+            <div class="pg-stat"><span class="pg-stat-icon pg-tone-info"><i class="fas fa-layer-group"></i></span><div><div class="pg-stat-value" id="metricDepartments">CCIS</div><div class="pg-stat-label">Department</div></div></div>
+        </section>
+
+        <!-- ============================================================
+             FILTER BAR - search inline; employment, program, year,
+             section and subject below. Handlers live in js/instructors/filters.js.
+             ============================================================ -->
+        <section class="pg-filters instructor-filters" aria-label="Filter instructors">
+            <div class="pg-filter-row">
+                <div class="pg-field pg-field-search">
+                    <label class="visually-hidden" for="filterSearch">Search</label>
+                    <i class="fas fa-magnifying-glass pg-field-icon"></i>
+                    <input type="search" class="form-control" id="filterSearch" placeholder="Name, email, subject, section, program…" title="Type several words to narrow results, e.g. &quot;web part-time&quot; — press / to focus" autocomplete="off">
+                </div>
+                <div class="pg-filter-buttons">
+                    <button class="btn btn-outline-secondary" id="btnRefreshInstructors" type="button" title="Reload from server" aria-label="Refresh"><i class="fas fa-rotate"></i></button>
+                    <button class="btn btn-outline-secondary d-none" id="btnClearFilters" type="button">Clear</button>
+                </div>
+            </div>
+
+            <div id="advancedFilters">
+                <div class="pg-filter-row pg-filter-row-more">
+                    <div class="pg-field">
+                        <label class="pg-label" for="filterEmployment">Employment</label>
+                        <select class="form-select" id="filterEmployment">
+                            <option value="">All types</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Visiting Lecturer">Visiting Lecturer</option>
+                        </select>
+                    </div>
+                    <div class="pg-field">
+                        <label class="pg-label" for="filterProgram">Program</label>
+                        <select class="form-select" id="filterProgram" data-filter-key="program"></select>
+                    </div>
+                    <div class="pg-field">
+                        <label class="pg-label" for="filterYear">Year level</label>
+                        <select class="form-select" id="filterYear" data-filter-key="year"></select>
+                    </div>
+                    <div class="pg-field pg-field-wide">
+                        <label class="pg-label">Section</label>
+                        <div class="ms-dropdown" data-filter-picker="section">
+                            <button type="button" class="form-select ms-dropdown-toggle"><span class="placeholder">All sections</span></button>
+                            <div class="ms-dropdown-panel d-none">
+                                <div class="ms-dropdown-search-wrap"><input type="text" class="form-control form-control-sm" placeholder="Search section..."></div>
+                                <div class="ms-dropdown-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pg-field pg-field-wide">
+                        <label class="pg-label">Subject</label>
+                        <div class="ms-dropdown" data-filter-picker="subject">
+                            <button type="button" class="form-select ms-dropdown-toggle"><span class="placeholder">All subjects</span></button>
+                            <div class="ms-dropdown-panel d-none">
+                                <div class="ms-dropdown-search-wrap"><input type="text" class="form-control form-control-sm" placeholder="Search subject..."></div>
+                                <div class="ms-dropdown-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                <span class="small text-muted me-1">Quick views:</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary quick-view" id="qvNoAvailability">
+                    No availability set <span class="badge text-bg-light border qv-count">0</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary quick-view" id="qvNoTeachingProfile" title="Instructors whose Teaching Load Form profile (address, degrees, DPTL code, etc.) hasn't been filled in">
+                    No teaching load profile <span class="badge text-bg-light border qv-count">0</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary quick-view" id="qvNoAssignments">
+                    No assignments <span class="badge text-bg-light border qv-count">0</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary quick-view" id="qvInactive">
+                    Inactive <span class="badge text-bg-light border qv-count">0</span>
+                </button>
+            </div>
+
+            <div class="pg-chips" id="activeFilterChips" aria-live="polite"></div>
+        </section>
+
+        <section class="glass-card p-0 overflow-hidden">
+            <div class="table-toolbar d-flex justify-content-between align-items-center flex-wrap gap-3 p-3 p-lg-4">
+                <div>
+                    <h2 class="h5 fw-bold mb-1">
+                        <i class="fas fa-list me-2 text-warning"></i>Instructor List
+                    </h2>
+                    <p class="text-muted small mb-0" id="instructorCounter">0 records</p>
+                </div>
+
+                <button class="btn btn-primary-modern text-white" id="btnOpenInstructorModal2" type="button">
+                    <i class="fas fa-plus me-2"></i>Add Instructor
+                </button>
+            </div>
+
+            <div class="bulk-bar d-none" id="bulkBar">
+                <span class="fw-semibold" id="bulkSelectedCount">0 selected</span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-primary-modern text-white" id="btnBulkAvailability">
+                        <i class="fas fa-calendar-check me-1"></i>Set availability
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" id="btnBulkClearAssignments">
+                        <i class="fas fa-eraser me-1"></i>Clear assignments
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnClearSelection">Clear selection</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle instructor-table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 40px;">
+                                <input type="checkbox" class="form-check-input" id="selectAllInstructors" aria-label="Select all shown instructors">
+                            </th>
+                            <th>Instructor ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Assignments</th>
+                            <th>Availability</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="instructorTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">No instructor records yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="instructorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="instructorModalTitle">
+                            <i class="fas fa-user-tie text-warning me-2"></i>Add Instructor
+                        </h5>
+                        <p class="text-muted small mb-0">Set up instructor information and teaching load.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="px-4 pt-3">
+                    <div class="d-flex align-items-center gap-2 small fw-semibold mb-1">
+                        <span class="wizard-step-dot active" id="wizardDot1">1</span>
+                        <span id="wizardLabel1">Basic Information</span>
+                        <span class="wizard-step-line"></span>
+                        <span class="wizard-step-dot" id="wizardDot2">2</span>
+                        <span id="wizardLabel2" class="text-muted">Teaching Assignments</span>
+                    </div>
+                </div>
+
+                <form id="instructorForm" novalidate>
+                    <input type="hidden" id="instructorId" name="id">
+
+                    <div class="modal-body p-4 pt-3">
+
+                        <!-- STEP 1: Basic Information -->
+                        <div id="wizardStep1">
+                            <div class="row g-3 mb-2">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Instructor ID *</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="employeeId" name="employee_id" readonly tabindex="-1">
+                                        <span class="input-group-text"><i class="fas fa-lock text-muted"></i></span>
+                                    </div>
+                                    <div class="form-text">Generated automatically. Cannot be edited.</div>
+                                </div>
+
+                                <div class="col-md-5">
+                                    <label class="form-label fw-semibold">Last Name *</label>
+                                    <input type="text" class="form-control name-caps" autocapitalize="characters" autocomplete="off" spellcheck="false" id="lastName" name="last_name" placeholder="Dela Cruz" required autofocus>
+                                    <div class="invalid-feedback" id="lastNameError"></div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold">First Name *</label>
+                                    <input type="text" class="form-control name-caps" autocapitalize="characters" autocomplete="off" spellcheck="false" id="firstName" name="first_name" placeholder="Juan" required>
+                                    <div class="invalid-feedback" id="firstNameError"></div>
+                                </div>
+
+                                <div class="col-md-1">
+                                    <label class="form-label fw-semibold">M.I.</label>
+                                    <input type="text" class="form-control name-caps" autocapitalize="characters" autocomplete="off" spellcheck="false" id="middleInitial" name="middle_initial" placeholder="D" maxlength="2">
+                                </div>
+                            </div>
+
+                            <div class="mb-3 small text-muted">
+                                <i class="fas fa-user me-1"></i>Full Name: <span class="fw-semibold text-body" id="fullNamePreview">—</span>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="instructor@school.edu" required>
+                                    <div class="invalid-feedback" id="emailError"></div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Contact Number</label>
+                                    <input type="text" class="form-control" id="contactNumber" name="contact_number" placeholder="09XXXXXXXXX">
+                                    <div class="invalid-feedback" id="contactNumberError"></div>
+                                    <div class="form-text">Format: 09XXXXXXXXX or +639XXXXXXXXX</div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Employment Type</label>
+                                    <select class="form-select" id="employmentType" name="employment_type">
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Visiting Lecturer">Visiting Lecturer</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Status</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label fw-semibold">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="1000" placeholder="Optional notes"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: Teaching Assignments -->
+                        <div id="wizardStep2" class="d-none">
+                            <p class="text-muted small mb-3">Assign subjects and the exact sections this instructor teaches.</p>
+
+                            <div class="border rounded-3 p-3 mb-3">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold mb-1">Subject</label>
+                                        <div class="ms-dropdown" id="assignSubjectDropdown">
+                                            <button type="button" class="form-select form-select-sm ms-dropdown-toggle" id="assignSubjectToggle">
+                                                <span id="assignSubjectToggleLabel" class="placeholder">Select subject</span>
+                                            </button>
+                                            <input type="hidden" id="assignSubjectPicker" value="">
+                                            <div class="ms-dropdown-panel d-none" id="assignSubjectPanel">
+                                                <div class="ms-dropdown-search-wrap">
+                                                    <input type="text" class="form-control form-control-sm" id="assignSubjectSearch" placeholder="Search subject...">
+                                                </div>
+                                                <div class="ms-dropdown-list" id="assignSubjectList"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold mb-1">
+                                            Sections <span class="text-muted fw-normal" id="sectionsHintText"></span>
+                                        </label>
+                                        <input type="text" class="form-control form-control-sm mb-1" id="sectionChecklistSearch" placeholder="Search section...">
+                                        <div class="border rounded-3 p-1" id="sectionChecklistList"></div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2 mb-1 flex-wrap">
+                                    <button type="button" class="btn btn-sm btn-outline-success" id="btnAddSuggested" disabled>
+                                        <i class="fas fa-wand-magic-sparkles me-1"></i>Add all suggested (<span id="suggestedSectionCount">0</span>)
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary-modern text-white" id="btnAddSelectedSections" disabled>
+                                        <i class="fas fa-plus me-1"></i>Add Selected Sections (<span id="selectedSectionCount">0</span>)
+                                    </button>
+                                </div>
+
+                                <hr>
+
+                                <div id="assignmentsEmpty" class="text-muted small py-2">No teaching assignments added yet. Add a subject and section above to begin.</div>
+                                <div id="assignmentsList" class="d-flex flex-column gap-2"></div>
+                            </div>
+
+                            <div class="form-text mb-3">Pair each subject with the exact section it's taught to. An instructor teaching 2 subjects across 3 sections needs one row per actual class, not every possible combination.</div>
+                            <div class="form-text text-warning-emphasis d-none" id="legacySpecializationHint"></div>
+
+                            <div class="mb-3" id="wizardAvailabilityWrap">
+                                <label class="form-label small fw-semibold mb-1" for="wizardAvailabilityPreset">Availability (optional)</label>
+                                <select class="form-select form-select-sm" id="wizardAvailabilityPreset">
+                                    <option value="any">Any time — no limits (default)</option>
+                                    <option value="weekdays">Mon–Fri · 7 AM–5 PM</option>
+                                    <option value="weekdays-full">Mon–Fri · 7 AM–9 PM</option>
+                                    <option value="mon-sat">Mon–Sat · 7 AM–7 PM</option>
+                                    <option value="mwf">Mon / Wed / Fri · 7 AM–5 PM</option>
+                                    <option value="tth">Tue / Thu · 7 AM–5 PM</option>
+                                    <option value="mornings">Mornings · Mon–Fri 7 AM–12 PM</option>
+                                    <option value="afternoons">Afternoons · Mon–Fri 1 PM–7 PM</option>
+                                </select>
+                                <div class="form-text">Applied when you save. Fine-tune later with the calendar button in the table.</div>
+                            </div>
+
+                            <div class="teaching-load-card border rounded-3 p-3 d-flex align-items-center justify-content-around text-center">
+                                <div>
+                                    <div class="fw-bold fs-5" id="loadAssignmentsCount">0</div>
+                                    <div class="small text-muted">Assignments</div>
+                                </div>
+                                <div class="small text-muted" id="loadSubjectsCount">0 subjects</div>
+                                <div class="small text-muted" id="loadSectionsCount">0 sections</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0" id="wizardFooterStep1">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary-modern text-white px-4" id="btnWizardNext">
+                            Next <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0 d-none" id="wizardFooterStep2">
+                        <button type="button" class="btn btn-outline-secondary me-auto px-4" id="btnWizardBack">
+                            <i class="fas fa-arrow-left me-2"></i>Back
+                        </button>
+                        <button type="button" class="btn btn-outline-primary px-4" id="btnSaveAddAnother">
+                            Save &amp; Add Another
+                        </button>
+                        <button type="submit" class="btn btn-primary-modern text-white px-5" id="btnSaveInstructor">
+                            <i class="fas fa-save me-2"></i>Save Instructor
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Availability modal: single instructor OR bulk (several selected instructors).
+         Kept separate from the create/edit wizard above. -->
+    <div class="modal fade" id="availabilityModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="availabilityModalTitle">Instructor Availability</h5>
+                        <p class="text-muted small mb-0" id="availabilityModalSubtitle"></p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+                    <div class="small fw-semibold text-muted mb-2">Quick start</div>
+                    <div class="d-flex flex-wrap gap-2 mb-3" id="availabilityPresets"></div>
+
+                    <div class="row g-2 align-items-end mb-3 avail-tools">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-1">Set the same hours on every checked day</label>
+                            <div class="input-group input-group-sm">
+                                <input type="time" class="form-control" id="availBulkStart" value="07:00" aria-label="Start time">
+                                <span class="input-group-text">to</span>
+                                <input type="time" class="form-control" id="availBulkEnd" value="17:00" aria-label="End time">
+                                <button type="button" class="btn btn-outline-success" id="btnApplyToChecked">Apply</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="availCopyWrap">
+                            <label class="form-label small text-muted mb-1">Same as another instructor</label>
+                            <div class="input-group input-group-sm">
+                                <select class="form-select" id="availCopyFrom"></select>
+                                <button type="button" class="btn btn-outline-success" id="btnCopyAvailability">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="availabilityDaysContainer"></div>
+                    <div class="small text-muted mt-2 d-none" id="availabilityBlockedNote"></div>
+                </div>
+
+                <!-- Pinned outside the scrolling body so the result and any warning are always visible. -->
+                <div class="px-4 pb-2">
+                    <div class="avail-summary is-open" id="availabilitySummary"></div>
+                    <div class="alert alert-warning py-2 px-3 mt-2 mb-0 d-none" id="availabilityWarning" role="alert"></div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary-modern text-white px-4" id="btnSaveAvailability">
+                        <i class="fas fa-save me-2"></i>Save Availability
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teaching Load Settings modal: the one shared row of institution
+         signatories (Dean/VPs/President) + weeks-per-semester that prints
+         on the "RECOMMENDING APPROVAL"/"APPROVED" block of every
+         instructor's Teaching Load Form export. -->
+    <div class="modal fade" id="teachingLoadSettingsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fw-bold">Teaching Load Settings</h5>
+                        <p class="text-muted small mb-0">Applies to every instructor's Teaching Load Form export - set these once here instead of per instructor.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+                    <div class="text-center py-4" id="teachingLoadSettingsLoading">
+                        <span class="spinner-border spinner-border-sm me-2"></span>Loading current settings…
+                    </div>
+                    <div class="alert alert-warning py-2 px-3 d-none" id="teachingLoadSettingsError" role="alert"></div>
+
+                    <form id="teachingLoadSettingsForm" class="d-none">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1" for="tlsWeeksPerSemester">Weeks per semester</label>
+                                <input type="number" min="1" class="form-control" id="tlsWeeksPerSemester">
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="small fw-semibold text-muted mb-2">Recommending Approval</div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted mb-1" for="tlsDeanName">Dean</label>
+                                <input type="text" class="form-control" id="tlsDeanName" placeholder="e.g. RODOLFO F. DOLLADO JR., Ph.D.">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1" for="tlsDeanDate">Date</label>
+                                <input type="text" class="form-control" id="tlsDeanDate" placeholder="e.g. July 25, 2026">
+                            </div>
+
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted mb-1" for="tlsVpAcademicName">Vice President for Academic Affairs</label>
+                                <input type="text" class="form-control" id="tlsVpAcademicName">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1" for="tlsVpAcademicDate">Date</label>
+                                <input type="text" class="form-control" id="tlsVpAcademicDate">
+                            </div>
+
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted mb-1" for="tlsVpResearchName">Vice President for Research, Extension and External Affairs</label>
+                                <input type="text" class="form-control" id="tlsVpResearchName">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1" for="tlsVpResearchDate">Date</label>
+                                <input type="text" class="form-control" id="tlsVpResearchDate">
+                            </div>
+
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted mb-1" for="tlsVpAdminName">Vice President for Administration</label>
+                                <input type="text" class="form-control" id="tlsVpAdminName">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1" for="tlsVpAdminDate">Date</label>
+                                <input type="text" class="form-control" id="tlsVpAdminDate">
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="small fw-semibold text-muted mb-2">Approved</div>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label small text-muted mb-1" for="tlsPresidentName">University President</label>
+                                <input type="text" class="form-control" id="tlsPresidentName" placeholder="e.g. ATTY. LORELIE FABILLAR-TANGARAN, DM">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1" for="tlsPresidentDate">Date</label>
+                                <input type="text" class="form-control" id="tlsPresidentDate">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary-modern text-white px-4" id="btnSaveTeachingLoadSettings">
+                        <i class="fas fa-save me-2"></i>Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teaching Load Profile modal: one instructor's own address, degrees,
+         admin designation, years of experience, DPTL code, effectivity
+         date, and other assignments - prints on THIS instructor's Teaching
+         Load Form export. The institution-wide signatories are set once in
+         Teaching Load Settings above, not here. -->
+    <div class="modal fade" id="teachingLoadProfileModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="teachingLoadProfileModalTitle">Teaching Load Profile</h5>
+                        <p class="text-muted small mb-0">Printed on this instructor's Teaching Load Form export.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 pt-3">
+                    <div class="text-center py-4" id="teachingLoadProfileLoading">
+                        <span class="spinner-border spinner-border-sm me-2"></span>Loading current profile…
+                    </div>
+                    <div class="alert alert-warning py-2 px-3 d-none" id="teachingLoadProfileError" role="alert"></div>
+
+                    <form id="teachingLoadProfileForm" class="d-none">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpProgramLevel">Program level</label>
+                                <select class="form-select" id="tlpProgramLevel">
+                                    <option value="Undergraduate">Undergraduate</option>
+                                    <option value="Graduate">Graduate</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpLoadType">Load type</label>
+                                <select class="form-select" id="tlpLoadType">
+                                    <option value="Regular">Regular</option>
+                                    <option value="Overload">Overload</option>
+                                    <option value="Part-Time">Part-Time</option>
+                                    <option value="Petition">Petition</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted mb-1" for="tlpHomeAddress">Home address</label>
+                                <input type="text" class="form-control" id="tlpHomeAddress">
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="small fw-semibold text-muted mb-2">Educational Qualification</div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpBaccDegree">Baccalaureate degree</label>
+                                <input type="text" class="form-control" id="tlpBaccDegree">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1" for="tlpBaccMajor">Major</label>
+                                <input type="text" class="form-control" id="tlpBaccMajor">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1" for="tlpBaccMinor">Minor</label>
+                                <input type="text" class="form-control" id="tlpBaccMinor">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpMastersDegree">Masters degree</label>
+                                <input type="text" class="form-control" id="tlpMastersDegree">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpMastersMajor">Major</label>
+                                <input type="text" class="form-control" id="tlpMastersMajor">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpDoctoralDegree">Doctoral degree</label>
+                                <input type="text" class="form-control" id="tlpDoctoralDegree">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpDoctoralMajor">Major</label>
+                                <input type="text" class="form-control" id="tlpDoctoralMajor">
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="row g-3 mb-3">
+                            <div class="col-12">
+                                <label class="form-label small text-muted mb-1" for="tlpAdminDesignation">Administrative designation / special assignment</label>
+                                <input type="text" class="form-control" id="tlpAdminDesignation">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpTeachingExpPublic">Years of teaching experience — Public school</label>
+                                <input type="number" min="0" class="form-control" id="tlpTeachingExpPublic">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpTeachingExpPrivate">Years of teaching experience — Private school</label>
+                                <input type="number" min="0" class="form-control" id="tlpTeachingExpPrivate">
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpDptlCode">DPTL code</label>
+                                <input type="text" class="form-control" id="tlpDptlCode" placeholder="Indicate 6 digit code">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1" for="tlpEffectivityDate">Effectivity date</label>
+                                <input type="text" class="form-control" id="tlpEffectivityDate" placeholder="e.g. August 1, 2026">
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="small fw-semibold text-muted mb-2">Research, Extension &amp; Consultation (hours)</div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1" for="tlpNonTeachingHours">Non-teaching</label>
+                                <input type="number" min="0" step="0.5" class="form-control" id="tlpNonTeachingHours">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1" for="tlpResearchHours">Research</label>
+                                <input type="number" min="0" step="0.5" class="form-control" id="tlpResearchHours">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1" for="tlpExtensionHours">Extension</label>
+                                <input type="number" min="0" step="0.5" class="form-control" id="tlpExtensionHours">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1" for="tlpConsultationHours">Consultation</label>
+                                <input type="number" min="0" step="0.5" class="form-control" id="tlpConsultationHours">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted mb-1" for="tlpDesignatedWorkHours" title="Printed as DW blocks on the Regular form of the new Teaching Load Forms export">Designated work</label>
+                                <input type="number" min="0" step="0.5" class="form-control" id="tlpDesignatedWorkHours">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-muted mb-1" for="tlpOtherAssignments">Other assignments / designated work</label>
+                                <input type="text" class="form-control" id="tlpOtherAssignments">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary-modern text-white px-4" id="btnSaveTeachingLoadProfile">
+                        <i class="fas fa-save me-2"></i>Save Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teaching Load viewer: shows one instructor's Regular / Overload /
+         Petition teaching load form on screen (same data the Excel export
+         uses). Logic: js/instructors/teaching-load/teaching-load-forms-view.js -->
+    <div class="modal fade" id="teachingLoadViewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="tlViewTitle">Teaching Load</h5>
+                        <p class="text-muted small mb-0" id="tlViewSubtitle"></p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs tlv-tabs mb-3" id="tlViewTabs" role="tablist"></ul>
+                    <div id="tlViewBody"></div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary-modern text-white px-4" id="btnTlViewExport">
+                        <i class="fas fa-file-excel me-2"></i>Export <span id="tlViewExportLabel">Regular</span> to Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div><!-- /.app-main -->
+
+    <!-- ============================================================
+         FACULTY SCHEDULE MATRIX WINDOW
+         Faculty x 30-minute slots for one day. Read-only; follows the
+         instructor filters. Kept as a direct child of <body> so the print
+         stylesheet can show only this window. Logic: js/instructors/faculty-matrix.js
+         ============================================================ -->
+    <div class="modal fade faculty-matrix-modal" id="facultyMatrixModal" tabindex="-1" aria-labelledby="facultyMatrixModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content" id="facultyMatrixCard">
+                <div class="modal-header fm-toolbar flex-wrap gap-3">
+                    <div class="fm-toolbar-title me-auto">
+                        <h5 class="modal-title fw-bold mb-1" id="facultyMatrixModalTitle"><i class="fas fa-table-cells me-2 text-primary"></i>Faculty Schedule Matrix</h5>
+                        <p class="text-muted small mb-0">
+                            <strong id="facultyMatrixTitle">—</strong>
+                            <span class="mx-1">·</span><span id="facultyMatrixTerm"></span>
+                            <span class="mx-1">·</span><span id="facultyMatrixSummary"></span>
+                        </p>
+                    </div>
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <div class="fm-day-group" id="facultyMatrixDays" role="group" aria-label="Day of the week"></div>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" id="btnFacultyMatrixPrint" title="Print this day (long bond paper, landscape)">
+                            <i class="fas fa-print me-1"></i>Print
+                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div class="modal-body p-0 d-flex flex-column">
+                    <div class="fm-filterbar" id="facultyMatrixFilters" role="search" aria-label="Filter the faculty schedule matrix">
+                        <div class="fm-filterbar-main">
+                            <label class="fm-field fm-field-search">
+                                <span class="fm-field-icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
+                                <input type="search" class="fm-input" id="fmFilterSearch" placeholder="Search faculty name or ID" aria-label="Search faculty by name or ID" autocomplete="off">
+                            </label>
+                            <label class="fm-field">
+                                <span class="fm-field-icon" aria-hidden="true"><i class="fas fa-user-tie"></i></span>
+                                <select class="fm-select" id="fmFilterType" aria-label="Employment type">
+                                    <option value="">All types</option>
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Visiting Lecturer">Visiting Lecturer</option>
+                                </select>
+                            </label>
+                            <label class="fm-field">
+                                <span class="fm-field-icon" aria-hidden="true"><i class="fas fa-book"></i></span>
+                                <select class="fm-select" id="fmFilterSubject" aria-label="Subject"><option value="">All subjects</option></select>
+                            </label>
+                            <label class="fm-field">
+                                <span class="fm-field-icon" aria-hidden="true"><i class="fas fa-users"></i></span>
+                                <select class="fm-select" id="fmFilterSection" aria-label="Section"><option value="">All sections</option></select>
+                            </label>
+                            <label class="fm-field">
+                                <span class="fm-field-icon" aria-hidden="true"><i class="fas fa-door-open"></i></span>
+                                <select class="fm-select" id="fmFilterRoom" aria-label="Room"><option value="">All rooms</option></select>
+                            </label>
+                            <div class="fm-seg" id="fmFilterShow" role="group" aria-label="Show instructors">
+                                <button type="button" data-show="" class="is-active" aria-pressed="true">All</button>
+                                <button type="button" data-show="with" aria-pressed="false"><i class="fas fa-calendar-check" aria-hidden="true"></i>With classes</button>
+                                <button type="button" data-show="none" aria-pressed="false"><i class="fas fa-mug-hot" aria-hidden="true"></i>Free all day</button>
+                            </div>
+                        </div>
+                        <div class="fm-chips d-none" id="fmFilterChips" aria-label="Active matrix filters"></div>
+                    </div>
+                    <div class="fm-print-heading">
+                        <div class="fm-print-school">COLLEGE OF COMPUTING AND INFORMATION SCIENCES</div>
+                        <div class="fm-print-title">FACULTY SCHEDULE MATRIX</div>
+                        <div class="fm-print-line" id="facultyMatrixPrintTitle"></div>
+                        <div class="fm-print-line" id="facultyMatrixPrintTerm"></div>
+                    </div>
+                    <div class="fm-notice d-none" id="facultyMatrixNotice" role="status" aria-live="polite"></div>
+                    <div class="d-none" id="facultyMatrixState"></div>
+                    <div class="fm-scroll" id="facultyMatrixScroll">
+                        <table class="fm-table" id="facultyMatrixTable" aria-label="Faculty schedule matrix for the selected day"></table>
+                    </div>
+                    <div class="fm-legend">
+                        <span><i></i>Class (subject / room / section)</span>
+                        <span><i class="is-conflict"></i>Overlapping classes for the same instructor</span>
+                        <span><i class="is-unavailable"></i>Outside the instructor's availability</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        var toggle = document.getElementById('sidebarToggle');
+        var backdrop = document.getElementById('sidebarBackdrop');
+        function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+        if (toggle) { toggle.addEventListener('click', function () { document.body.classList.toggle('sidebar-open'); }); }
+        if (backdrop) { backdrop.addEventListener('click', closeSidebar); }
+    })();
+    </script>
+
+    <script src="../vendor/jquery/jquery-3.7.1.min.js"></script>
+    <script src="../vendor/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="../js/core/notify.js"></script>
+    <script src="../js/core/utils.js"></script>
+    <script src="../js/instructors/instructors-state.js"></script>
+    <script src="../js/instructors/api.js"></script>
+    <script src="../js/instructors/assignments.js"></script>
+    <script src="../js/instructors/validation.js"></script>
+    <script src="../js/instructors/ui.js"></script>
+    <script src="../js/instructors/filters.js"></script>
+    <script src="../js/instructors/availability.js"></script>
+    <script src="../js/core/xlsx-package.js"></script>
+    <script src="../js/core/xlsx-book.js"></script>
+    <script src="../js/instructors/teaching-load/teaching-load-template.js"></script>
+    <script src="../js/instructors/teaching-load/teaching-load-export.js"></script>
+    <script src="../js/instructors/teaching-load/teaching-load-forms.js"></script>
+    <script src="../js/instructors/teaching-load/teaching-load-forms-export.js"></script>
+    <script src="../js/instructors/teaching-load/teaching-load-forms-view.js"></script>
+    <script src="../js/instructors/teaching-load/teaching-load-settings.js"></script>
+    <script src="../js/instructors/teaching-load/teaching-load-profile.js"></script>
+    <script src="../js/instructors/faculty-matrix.js"></script>
+    <script src="../js/instructors/instructors.js"></script>
+    <script src="../js/pwa/pwa.js"></script>
+</body>
+</html>
